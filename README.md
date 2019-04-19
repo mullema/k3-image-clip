@@ -13,23 +13,23 @@ Visual image clipping / cropping.
 - [License](#License)
 
 ## Installation
-### Download
+#### Download
 
 Download and copy this repository to `/site/plugins/k3-image-clip`
 
-### Git submodule
+#### Git submodule
 
 ```
 git submodule add https://github.com/mullema/k3-image-clip.git site/plugins/k3-image-clip
 ```
 
-### Composer
+#### Composer
 
 ```
 composer require mullema/k3-image-clip
 ```
 
-## Requirements
+### Requirements
 - Kirby 3.x
 - GD Library or ImageMagick
 
