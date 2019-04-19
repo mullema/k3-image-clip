@@ -41,12 +41,8 @@
                 type: Object,
                 default: null
             },
-            minwidth: {
-                type: Number,
-                default: null
-            },
-            minheight: {
-                type: Number,
+            clip: {
+                type: Object,
                 default: null
             }
         },
@@ -55,6 +51,9 @@
                 cropprInstance: null,
                 dialog_width: null
             }
+        },
+        mounted() {
+          console.log(this.$props)
         },
         watch: {
             isOpen: function (newVal, oldVal) {
@@ -68,14 +67,14 @@
                             this.cropprInstance = new Croppr({
                                 el: el,
                                 original_dimensions: this.image.dimensions,
-                                min_width: this.minwidth,
-                                min_height: this.minheight,
+                                clip: this.clip,
                                 saved: this.image.clip
                             });
                         }
                         catch(error) {
                             this.cancel();
                             console.error(this.image.id + ': ' + error.message);
+                            this.$store.dispatch("notification/error", error.message);
                         }
                     });
                 }
@@ -89,9 +88,6 @@
                 });
                 this.close();
             },
-            convertRemToPixels(rem) {
-                return rem * parseInt(getComputedStyle(document.documentElement).fontSize);
-            },
             setDialogWidth() {
                 let viewportWidth = window.innerWidth;
 
@@ -101,7 +97,8 @@
                 }
                 else {
                     // portrait + square
-                    this.dialog_width = (this.convertRemToPixels(40) > this.image.dimensions.width) ? "width: " + this.image.dimensions.width + "px;" : null;
+                    let largeDialog = 40 * parseInt(getComputedStyle(document.documentElement).fontSize); // rem to px conversion
+                    this.dialog_width = (largeDialog > this.image.dimensions.width) ? "width: " + this.image.dimensions.width + "px;" : null;
                 }
             }
         }

@@ -49,12 +49,12 @@
         </k-empty>
         <k-files-dialog ref="selector" @submit="select" />
         <k-clip-dialog
-                ref="clip"
-                size="large"
-                :image="clip_image"
-                :minwidth="minwidth"
-                :minheight="minheight"
-                @submit="clippedArea" />
+            ref="clip"
+            size="large"
+            :image="clip_image"
+            :clip="clip"
+            @submit="clippedArea"
+        />
     </k-field>
 </template>
 
@@ -62,12 +62,8 @@
 export default {
     extends: 'k-files-field',
     props: {
-        minwidth: {
-            type: Number,
-            default: null
-        },
-        minheight: {
-            type: Number,
+        clip: {
+            type: Object,
             default: null
         }
     },

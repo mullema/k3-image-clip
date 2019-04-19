@@ -6,11 +6,8 @@ $base = require kirby()->roots()->kirby . DIRECTORY_SEPARATOR . 'config' . DIREC
 
 return array_replace_recursive($base, [
     'props' => [
-        'minwidth' => function ($minwidth = null) {
-            return $minwidth;
-        },
-        'minheight' => function ($minheight = null) {
-            return $minheight;
+        'clip' => function ($clip = []) {
+            return Yaml::decode($clip);
         }
     ],
     'methods' => [

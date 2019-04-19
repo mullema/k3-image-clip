@@ -1,41 +1,41 @@
 import Croppr from 'croppr';
 
+/**
+ * Facade to Croppr
+ * Validation and Bugfixes to link Croppr with Kirby's Panel
+ */
 export default class {
 
     /**
-     *
-     * @param el
-     * @param saved
-     * @param min_width
-     * @param min_height
+     * Constructor
+     * @param {Element} el - The image to work with
+     * @param {Object} original_dimensions - From file on disk
+     * @param {Object} saved - Crop data from disk
+     * @param {Object} clip - Blueprint options
      */
-    constructor({el, original_dimensions, saved, min_width, min_height}) {
-        this.cropInstance = null;
+    constructor({el, original_dimensions, saved, clip}) {
         this.el = el;
         this.original_dimensions = original_dimensions;
         this.saved = saved;
-        this.min_width = min_width;
-        this.min_height = min_height;
+        this.min_width = clip ? clip.minwidth : null;
+        this.min_height = clip ? clip.minheight : null;
+        this.max_width = clip ? clip.maxwidth : null;
+        this.max_height = clip ? clip.maxheight : null;
+        this.ratio = clip ? clip.ratio : null;
 
         this.validate();
-        this.init();
+        this.cropInstance = this.init();
     }
 
-    validate(image) {
-        if (this.min_width && this.original_dimensions.width < this.min_width) throw new Error('Image is smaller than min-width');
-        if (this.min_height && this.original_dimensions.height < this.min_height) throw new Error('Image is smaller than min-height');
-
-        // check max size
-        // check min and max size same ratio
-        // check saved inside original_dimensions
-    }
-
+    /**
+     * Initiate Croppr
+     * @returns {Croppr} - Croppr Instance
+     */
     init () {
         let options = {
             returnMode: "raw",
             onInitialize: (instance) => {
-                // i need image width for factor calculations
-                // because they are wrong in Croppr
+                // image width for factor calculations because they are wrong in Croppr
                 let image = document.getElementsByClassName('croppr-image')[0];
                 image.addEventListener("load", (event) => {
                     this.image = event.target;
@@ -47,13 +47,22 @@ export default class {
         };
 
         if (this.min_width && this.min_height) {
-            options.aspectRatio = this.min_height / this.min_width;
+            options.aspectRatio = (this.ratio === 'fixed') ? this.min_height / this.min_width : null;
             options.minSize = [this.min_width, this.min_height, 'px'];
         }
 
-        this.cropInstance = new Croppr(this.el, options);
+        if (this.max_width && this.max_height) {
+            options.aspectRatio = (this.ratio === 'fixed') ? this.max_height / this.max_width : null;
+            options.maxSize = [this.max_width, this.max_height, 'px'];
+        }
+
+        return new Croppr(this.el, options);
     }
 
+    /**
+     * Returns the crop area coordinates
+     * @returns {Object} - Coordinates in "real" values on original image
+     */
     getCropArea() {
         let coord = this.cropInstance.getValue();
         return {
@@ -64,20 +73,44 @@ export default class {
         };
     }
 
+    /**
+     * Moves the crop selector to a start position
+     */
     setStartPosition () {
-        let min_size = { // todo nur wenn set!
-            width: this.min_width / this.factor_w,
-            height: this.min_height / this.factor_h
+        let reference = {
+            width: 10,
+            height: 10
         };
-        this.cropInstance.options.minSize = min_size;
 
-        let max_size = { // todo
+        if (this.max_width && this.max_height) {
+            this.cropInstance.options.maxSize = reference = {
+                width: this.max_width / this.factor_w,
+                height: this.max_height / this.factor_h
+            };
+        }
 
-        };
+        if (this.min_width && this.min_height) {
+            this.cropInstance.options.minSize = reference = {
+                width: this.min_width / this.factor_w,
+                height: this.min_height / this.factor_h
+            };
+        }
 
         if (!this.saved) {
+            let size = this.aspectRatioFit({
+                srcWidth: reference.width,
+                srcHeight: reference.height,
+                maxWidth: this.original_dimensions.width,
+                maxHeight: this.original_dimensions.height
+            });
+
+            reference = {
+                width: size.width / this.factor_w,
+                height: size.height / this.factor_h
+            };
+
             // set default values
-            this.cropInstance.resizeTo(min_size.width, min_size.height);
+            this.cropInstance.resizeTo(reference.width, reference.height);
             this.cropInstance.moveTo(0, 0);
         }
         else {
@@ -91,8 +124,43 @@ export default class {
 
             this.cropInstance.resizeTo(calculated.width, calculated.height);
             this.cropInstance.moveTo(calculated.left, calculated.top);
-
-            //console.log(this.saved, calculated);
         }
+    }
+
+    /**
+     * Validates Options vs Image
+     * @throws {Error}
+     */
+    validate() {
+        if (this.min_width && this.original_dimensions.width < this.min_width) {
+            throw new Error(`Image width (${this.original_dimensions.width}px) must be at least ${this.min_width}px`);
+        }
+
+        if (this.min_height && this.original_dimensions.height < this.min_height) {
+            throw new Error(`Image height (${this.original_dimensions.height}px) must be at least ${this.min_height}px`);
+        }
+
+        if (this.min_width && this.min_height && this.max_width && this.max_height
+            && this.ratio === 'fixed'
+            && (this.min_width / this.min_height) !== (this.max_width / this.max_height)) {
+            throw new Error(`Ratio must be same for min and max`);
+        }
+    }
+
+    /**
+     * Conserve aspect ratio of the original region. Useful when shrinking/enlarging
+     * images to fit into a certain area.
+     *
+     * https://stackoverflow.com/a/14731922
+     *
+     * @param {Number} srcWidth width of source image
+     * @param {Number} srcHeight height of source image
+     * @param {Number} maxWidth maximum available width
+     * @param {Number} maxHeight maximum available height
+     * @return {Object} { width, height }
+     */
+    aspectRatioFit({srcWidth, srcHeight, maxWidth, maxHeight}) {
+        let ratio = Math.min(maxWidth / srcWidth, maxHeight / srcHeight);
+        return { width: srcWidth*ratio, height: srcHeight*ratio };
     }
 }
