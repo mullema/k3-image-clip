@@ -81,7 +81,7 @@ export default {
                 },
                 list: {
                     list: "k-list",
-                    item: "k-list-item"
+                    item: "k-clip-list-item"
                 }
             };
             if (layouts[this.layout]) {
