@@ -25,11 +25,6 @@ use Kirby\Toolkit\Str;
  *
  * echo $filename->toString();
  * // result: some-file-300x200-q80-clip150x150-10x10.jpg
- *
- * @package   Kirby Cms
- * @author    Bastian Allgeier <bastian@getkirby.com>
- * @link      http://getkirby.com
- * @copyright Bastian Allgeier
  */
 class Filename extends Cms\Filename {
 
