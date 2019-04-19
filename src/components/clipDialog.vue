@@ -83,7 +83,7 @@
     }
 </script>
 
-<style scoped>
+<style>
     .croppr-container * {
         user-select: none;
         -moz-user-select: none;

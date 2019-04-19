@@ -1,4 +1,4 @@
-import Croppr from "croppr";
+import Croppr from 'croppr';
 
 export default class {
 

@@ -61,9 +61,6 @@
 <script>
 export default {
     extends: 'k-files-field',
-    mounted() {
-      console.log(this.$props);
-    },
     props: {
         minwidth: {
             type: Number,
