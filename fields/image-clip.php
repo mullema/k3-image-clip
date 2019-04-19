@@ -6,11 +6,8 @@ $base = require kirby()->roots()->kirby . DIRECTORY_SEPARATOR . 'config' . DIREC
 
 return array_replace_recursive($base, [
     'props' => [
-        'minwidth' => function ($minwidth = null) {
-            return $minwidth;
-        },
-        'minheight' => function ($minheight = null) {
-            return $minheight;
+        'clip' => function ($clip = []) {
+            return Yaml::decode($clip);
         }
     ],
     'methods' => [
@@ -47,7 +44,8 @@ return array_replace_recursive($base, [
                 'icon'     => $file->panelIcon($image),
                 'type'     => $file->type(),
                 'resizable' => $file->isResizable(),     // trigger for clip handler
-                'clip'      => $clip
+                'clip'      => $clip,
+                'dimensions' => $file->dimensions()
             ];
         },
         'toFiles' => function ($value = null) {

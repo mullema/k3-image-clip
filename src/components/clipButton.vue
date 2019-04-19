@@ -1,7 +1,7 @@
 <template>
-      <span class="k-sort-handle clip" aria-hidden="true">
-        <img @click="open" src="../../assets/clip.png" alt="Clip" class="clipicon" />
-      </span>
+  <button class="k-button clip" aria-hidden="true">
+    <img @click="open" src="../../assets/clip.png" alt="Clip" class="clipicon" />
+  </button>
 </template>`
 
 <script>
@@ -17,12 +17,12 @@
 
 <style scoped>
     .clip {
-        left: 0.75rem;
         cursor: pointer;
+        padding: 0 5px;
     }
 
     .clip:hover {
-        background: #ddd;
+        background: #eee;
     }
 
     .clipicon {

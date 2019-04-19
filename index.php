@@ -1,6 +1,7 @@
 <?php
 
 load([
+    'mullema\\File' => 'classes/File.php',
     'mullema\\Filename' => 'classes/Filename.php',
     'mullema\\GdLib' => 'classes/GdLib.php',
     'mullema\\Imagemagick' => 'classes/ImageMagick.php',
@@ -13,6 +14,10 @@ Kirby::plugin('mullema/k3-image-clip', [
     ],
     'fields' => [
         'image-clip' => include __DIR__ . '/fields/image-clip.php'
+    ],
+    'fieldMethods' => [
+        'toImage' => include __DIR__ . '/fieldMethods/toImage.php',
+        'toImages' => include __DIR__ . '/fieldMethods/toImages.php',
     ]
 ]);
 

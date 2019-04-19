@@ -49,28 +49,21 @@
         </k-empty>
         <k-files-dialog ref="selector" @submit="select" />
         <k-clip-dialog
-                ref="clip"
-                size="large"
-                :image="clip_image"
-                :minwidth="minwidth"
-                :minheight="minheight"
-                @submit="clippedArea" />
+            ref="clip"
+            size="large"
+            :image="clip_image"
+            :clip="clip"
+            @submit="clippedArea"
+        />
     </k-field>
 </template>
 
 <script>
 export default {
     extends: 'k-files-field',
-    mounted() {
-      console.log(this.$props);
-    },
     props: {
-        minwidth: {
-            type: Number,
-            default: null
-        },
-        minheight: {
-            type: Number,
+        clip: {
+            type: Object,
             default: null
         }
     },
@@ -88,7 +81,7 @@ export default {
                 },
                 list: {
                     list: "k-list",
-                    item: "k-list-item"
+                    item: "k-clip-list-item"
                 }
             };
             if (layouts[this.layout]) {
@@ -98,11 +91,11 @@ export default {
         },
     },
     methods: {
-        openClipDialog: function (id) {
+        openClipDialog(id) {
             this.clip_image = this.value.find(item => item.id === id);
             this.$refs.clip.open();
         },
-        clippedArea: function (data) {
+        clippedArea(data) {
             this.clip_image.clip = data.clip;
             this.onInput();
             this.$emit('submit');

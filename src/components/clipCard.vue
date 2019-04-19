@@ -56,7 +56,7 @@
             resizable: Boolean
         },
         methods: {
-            openClipDialog: function () {
+            openClipDialog() {
                 this.$emit('openclipdialog', this.id);
             }
         }
