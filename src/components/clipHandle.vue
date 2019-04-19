@@ -1,6 +1,6 @@
 <template>
       <span class="k-sort-handle clip" aria-hidden="true">
-        <img @click="open" src="../../assets/clip.png" alt="Clip" />
+        <img @click="open" src="../../assets/clip.png" alt="Clip" class="clipicon" />
       </span>
 </template>`
 
@@ -24,5 +24,10 @@
 
     .clip:hover {
         background: #ddd;
+    }
+
+    .clipicon {
+        width: 2em;
+        height: 2em;
     }
 </style>

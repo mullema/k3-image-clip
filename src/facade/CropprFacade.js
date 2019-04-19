@@ -9,14 +9,25 @@ export default class {
      * @param min_width
      * @param min_height
      */
-    constructor({el, saved, min_width, min_height}) {
+    constructor({el, original_dimensions, saved, min_width, min_height}) {
         this.cropInstance = null;
         this.el = el;
+        this.original_dimensions = original_dimensions;
         this.saved = saved;
         this.min_width = min_width;
         this.min_height = min_height;
 
+        this.validate();
         this.init();
+    }
+
+    validate(image) {
+        if (this.min_width && this.original_dimensions.width < this.min_width) throw new Error('Image is smaller than min-width');
+        if (this.min_height && this.original_dimensions.height < this.min_height) throw new Error('Image is smaller than min-height');
+
+        // check max size
+        // check min and max size same ratio
+        // check saved inside original_dimensions
     }
 
     init () {
@@ -28,8 +39,8 @@ export default class {
                 let image = document.getElementsByClassName('croppr-image')[0];
                 image.addEventListener("load", (event) => {
                     this.image = event.target;
-                    this.factor_w = event.target.naturalWidth / event.target.clientWidth;
-                    this.factor_h = event.target.naturalHeight / event.target.clientHeight;
+                    this.factor_w = this.original_dimensions.width / event.target.clientWidth;
+                    this.factor_h = this.original_dimensions.height / event.target.clientHeight;
                     this.setStartPosition();
                 });
             }
@@ -54,7 +65,7 @@ export default class {
     }
 
     setStartPosition () {
-        let min_size = {
+        let min_size = { // todo nur wenn set!
             width: this.min_width / this.factor_w,
             height: this.min_height / this.factor_h
         };

@@ -1,6 +1,6 @@
 <template>
     <div v-if="isOpen" class="k-dialog" @click="cancel">
-        <div :data-size="size" class="k-dialog-box" @click.stop>
+        <div :data-size="size" class="k-dialog-box" :style="dialog_width" @click.stop>
             <div v-if="notification" :data-theme="notification.type" class="k-dialog-notification">
                 <p>{{ notification.message }}</p>
                 <k-button icon="cancel" @click="notification = null" />
@@ -52,21 +52,31 @@
         },
         data() {
             return {
-                cropprInstance: null
+                cropprInstance: null,
+                dialog_width: null
             }
         },
         watch: {
             isOpen: function (newVal, oldVal) {
                 if (newVal === true) {
+                    this.setDialogWidth();
                     // resize dialog opened
                     this.$nextTick(() => {
                         let el = document.getElementById('croppr');
-                        this.cropprInstance = new Croppr({
-                            el: el,
-                            min_width: this.minwidth,
-                            min_height: this.minheight,
-                            saved: this.image.clip
-                        })
+
+                        try {
+                            this.cropprInstance = new Croppr({
+                                el: el,
+                                original_dimensions: this.image.dimensions,
+                                min_width: this.minwidth,
+                                min_height: this.minheight,
+                                saved: this.image.clip
+                            });
+                        }
+                        catch(error) {
+                            this.cancel();
+                            console.error(this.image.id + ': ' + error.message);
+                        }
                     });
                 }
             }
@@ -78,6 +88,21 @@
                     clip: this.cropprInstance.getCropArea()
                 });
                 this.close();
+            },
+            convertRemToPixels(rem) {
+                return rem * parseInt(getComputedStyle(document.documentElement).fontSize);
+            },
+            setDialogWidth() {
+                let viewportWidth = window.innerWidth;
+
+                if (this.image.dimensions.width > this.image.dimensions.height) {
+                    // landscape
+                    this.dialog_width = (viewportWidth > this.image.dimensions.width) ? "width: " + this.image.dimensions.width + "px;" : "width: 90vw;";
+                }
+                else {
+                    // portrait + square
+                    this.dialog_width = (this.convertRemToPixels(40) > this.image.dimensions.width) ? "width: " + this.image.dimensions.width + "px;" : null;
+                }
             }
         }
     }
