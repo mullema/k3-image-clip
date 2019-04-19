@@ -9,19 +9,8 @@ use Kirby\Toolkit\Str;
  * The Filename class handles complex
  * mapping of file attributes (i.e for thumbnails)
  * into human readable filenames.
- *
- * ```php
- * $filename = new Filename('some-file.jpg', '{{ name }}-{{ attributes }}.{{ extension }}', [
- *   'crop'    => 'top left',
- *   'width'   => 300,
- *   'height'  => 200
- *   'quality' => 80
- * ]);
- *
- * echo $filename->toString();
- * // result: some-file-300x200-crop-top-left-q80.jpg
- *
- * // Or with clip
+
+ * // extended to support clip
  * $filename = new Filename('some-file.jpg', '{{ name }}-{{ attributes }}.{{ extension }}', [
  *   'width'   => 300,
  *   'height'  => 200
