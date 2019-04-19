@@ -3,6 +3,14 @@ Visual image clipping / cropping.
 
 ![Image Clip](https://www.moeli.com/github/image-clip.PNG)
 
+## Overview
+
+- [Installation](#Installation)
+- [Requirements](#Requirements)
+- [Consider a donation](#Consider a donation)
+- [Panel Usage](#Panel Usage)
+- [Frontend Usage](#Frontend Usage)
+
 ## Installation
 ### Download
 
@@ -48,6 +56,7 @@ myimages:
 - All values are in Pixels.
 - `minwidth`, `minheight`, `maxwidth`, `maxheight` limit the clip/crop select area.
 - None of the clip options are required, but in most cases it is recommended to define `minwidth` and `minheight`. 
+- Often it makes more sense to resize the resulting image than defining `maxwidth` and `maxheight`.
 - `ratio: fixed` locks the ratio 
     - if `minwidth` and `minheight` are defined,
     - or `maxwidth` and `maxheight` are defined,
