@@ -7,9 +7,10 @@ Visual image clipping / cropping.
 
 - [Installation](#Installation)
 - [Requirements](#Requirements)
-- [Consider a donation](#Consider a donation)
-- [Panel Usage](#Panel Usage)
-- [Frontend Usage](#Frontend Usage)
+- [Consider a donation](#Consider-a-donation)
+- [Panel Usage](#Panel-usage)
+- [Frontend Usage](#Frontend-usage)
+- [License](#License)
 
 ## Installation
 ### Download
