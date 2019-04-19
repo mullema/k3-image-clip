@@ -1,7 +1,7 @@
 # Kirby 3: Image Clip
 Visual image clipping / cropping.
 
-/IMAGE
+![Image Clip](https://www.moeli.com/github/image-clip.PNG)
 
 ## Installation
 ### Download
@@ -28,8 +28,7 @@ composer require mullema/k3-image-clip
 This plugin is free but if you use it in a commercial project please consider to [make a donation](https://www.paypal.me/mullema/10).
 
 
-## Usage
-### Panel
+## Panel Usage
 This plugin comes with a `image-clip` field. It is based on the `files` field and supports all it's options. Read more about the `files` field in the [Kirby3 Docs](https://getkirby.com/docs/reference/panel/fields/files).
 
 Example blueprint:
@@ -47,7 +46,8 @@ myimages:
     ratio: fixed
 ```
 - All values are in Pixels.
-- None of the clip options is required, but in most cases it is recommended to define `minwidth` and `minheight`. 
+- `minwidth`, `minheight`, `maxwidth`, `maxheight` limit the clip/crop select area.
+- None of the clip options are required, but in most cases it is recommended to define `minwidth` and `minheight`. 
 - `ratio: fixed` locks the ratio 
     - if `minwidth` and `minheight` are defined,
     - or `maxwidth` and `maxheight` are defined,
@@ -58,7 +58,7 @@ The field does basic checks of image size and type but counts mainly on you defi
 query: site.find('photography').children.images.filterBy('template', 'cover')
 ```
 
-### Frontend
+## Frontend Usage
 How to fetch the images defined in a `image-clip` field.
 #### Multiple Images
 ```php
@@ -87,11 +87,11 @@ $file->clip(null, 300);
 ```
 - Used in combination with the `image-clip` Field.
 - Arguments: `clip(width, height)`
-    - if `width` and `height` are defined, the image will be resized with `bestfit`
+    - if `width` and `height` are both defined, the image will be resized with `bestfit`
 
 
 #### Improved `$file->thumb()`
-The thumb method accepts the new option `clip`
+The thumb method accepts not the option `clip`
 ```php
 $file->thumb([
     'width' => 400,
@@ -105,7 +105,6 @@ $file->thumb([
 ```
 - Clips/crops a square of 500x200px, 10px from top and 200px from the left end of the original image.
 - Resizes the resulting image to 400px width.
-
 - If `clip` and `crop` are used at the same time, `crop` will be ignored.
 
 Read more about the `thumb` method in the [Kirby3 Docs](https://getkirby.com/docs/reference/objects/file/thumb)
