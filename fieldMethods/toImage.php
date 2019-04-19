@@ -8,7 +8,6 @@ use Kirby\Cms\File;
  * @param Field $field
  * @return File|null
  */
-
 return function (Field $field) {
     return $field->toImages()->first();
 };

@@ -44,7 +44,7 @@ Example blueprint:
 ```yaml
 myimages:
   type: image-clip
-  query: site.find('photography/animals').files
+  query: site.find('photography/animals').images
   layout: cards
   size: small
   clip:
