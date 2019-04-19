@@ -1,0 +1,28 @@
+<template>
+      <span class="k-sort-handle clip" aria-hidden="true">
+        <img @click="open" src="../../assets/clip.png" alt="Clip" />
+      </span>
+</template>`
+
+<script>
+    import img from '../../assets/clip.png';
+    export default {
+        extends: 'k-sort-handle',
+        methods: {
+            open: function () {
+                this.$emit('clicked')
+            }
+        }
+    }
+</script>
+
+<style scoped>
+    .clip {
+        left: 0.75rem;
+        cursor: pointer;
+    }
+
+    .clip:hover {
+        background: #ddd;
+    }
+</style>
