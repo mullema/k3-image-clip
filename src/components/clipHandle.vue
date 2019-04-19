@@ -5,11 +5,10 @@
 </template>`
 
 <script>
-    import img from '../../assets/clip.png';
     export default {
         extends: 'k-sort-handle',
         methods: {
-            open: function () {
+            open() {
                 this.$emit('clicked')
             }
         }

@@ -91,11 +91,11 @@ export default {
         },
     },
     methods: {
-        openClipDialog: function (id) {
+        openClipDialog(id) {
             this.clip_image = this.value.find(item => item.id === id);
             this.$refs.clip.open();
         },
-        clippedArea: function (data) {
+        clippedArea(data) {
             this.clip_image.clip = data.clip;
             this.onInput();
             this.$emit('submit');

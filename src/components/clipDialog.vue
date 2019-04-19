@@ -52,11 +52,8 @@
                 dialog_width: null
             }
         },
-        mounted() {
-          console.log(this.$props)
-        },
         watch: {
-            isOpen: function (newVal, oldVal) {
+            isOpen (newVal, oldVal) {
                 if (newVal === true) {
                     this.setDialogWidth();
                     // resize dialog opened
@@ -97,7 +94,8 @@
                 }
                 else {
                     // portrait + square
-                    let largeDialog = 40 * parseInt(getComputedStyle(document.documentElement).fontSize); // rem to px conversion
+                    // rem to px conversion
+                    let largeDialog = 40 * parseInt(getComputedStyle(document.documentElement).fontSize);
                     this.dialog_width = (largeDialog > this.image.dimensions.width) ? "width: " + this.image.dimensions.width + "px;" : null;
                 }
             }
