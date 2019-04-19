@@ -100,8 +100,8 @@ $file->clip(null, 300);
     - if `width` and `height` are both defined, the image will be resized with `bestfit`
 
 
-#### Improved `$file->thumb()`
-The thumb method accepts not the option `clip`
+### Improved `$file->thumb()`
+The thumb method accepts now the option `clip` and can be used with any resizable image.
 ```php
 $file->thumb([
     'width' => 400,
