@@ -68,6 +68,24 @@ The field does basic checks of image size and type but counts mainly on you defi
 query: site.find('photography').children.images.filterBy('template', 'cover')
 ```
 
+### Panel thumb size
+In the plugins index.php you can adjust the thumbnail size that are displayed in the `image-clip` field.
+Default is 400x400px for cards and 100x100px for lists.
+```php
+    'options' => [
+        'panelthumbs' => [
+            'cards' => [
+                'width'  => 400,
+                'height' => 400
+            ],
+            'list' => [
+                'width'  => 100,
+                'height' => 100
+            ]
+        ]
+    ]
+```
+
 ## Frontend Usage
 How to fetch the images defined in a `image-clip` field.
 #### Multiple Images
@@ -90,12 +108,15 @@ if ($image = $page->myimages()->toImage()) {
 
 
 #### `$file->clip()`
+Adapter for `$file->thumb()`. Returns a FileVersion|File Object.
 ```php
-$file->clip(200, 300);
-$file->clip(200);
-$file->clip(null, 300);
+$file->clip(200, 300);   // bestfit
+$file->clip(200);        // width 200px
+$file->clip(null, 300);  // height 300px
+$file->clip();           // width and height from clip
 ```
-- Used in combination with the `image-clip` Field.
+- Used in combination with the `image-clip` Field, invokes automatically field clip data.
+- Generates a Thumbnail of the clip area.
 - Arguments: `clip(width, height)`
     - if `width` and `height` are both defined, the image will be resized with `bestfit`
 
@@ -119,6 +140,19 @@ $file->thumb([
 
 Read more about the `thumb` method in the [Kirby3 Docs](https://getkirby.com/docs/reference/objects/file/thumb)
 
+### Helper `$file->getClip()`
+Returns the clip data.
+
+Can be useful e.g with the `thumb` method.
+```php
+if ($image = $page->myimages()->toImage()) {
+    echo $image->thumb([
+       'width' => 1200,
+       'grayscale' => true,
+       'clip' => $image->getClip()
+    ]);
+}
+```
 
 ## License
 MIT
