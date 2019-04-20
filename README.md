@@ -69,8 +69,12 @@ query: site.find('photography').children.images.filterBy('template', 'cover')
 ```
 
 ### Panel thumb size
-In the plugins index.php you can adjust the thumbnail size that are displayed in the `image-clip` field.
-Default is 400x400px for cards and 100x100px for lists.
+In the plugins index.php you can adjust the maximal thumbnail sizes that are displayed in the `image-clip` field.
+Default is 400px width or 400px height for cards and 100px width or 100px height for lists. 
+
+If your cards get bigger you might want to adjust the numbers to 800x800px.
+
+__Note__: This is only about thumbnail quality in the panel. You don't need to match the clip area numbers.
 ```php
     'options' => [
         'panelthumbs' => [
@@ -113,7 +117,7 @@ Adapter for `$file->thumb()`. Returns a FileVersion|File Object.
 $file->clip(200, 300);   // bestfit
 $file->clip(200);        // width 200px
 $file->clip(null, 300);  // height 300px
-$file->clip();           // width and height from clip
+$file->clip();           // clip area without resizing
 ```
 - Used in combination with the `image-clip` Field, invokes automatically field clip data.
 - Generates a Thumbnail of the clip area.
@@ -143,7 +147,7 @@ Read more about the `thumb` method in the [Kirby3 Docs](https://getkirby.com/doc
 ### Helper `$file->getClip()`
 Returns the clip data.
 
-Can be useful e.g with the `thumb` method.
+Can be useful e.g with the `$file->thumb()` method.
 ```php
 if ($image = $page->myimages()->toImage()) {
     echo $image->thumb([
