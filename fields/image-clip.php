@@ -14,13 +14,13 @@ return array_replace_recursive($base, [
         'fileResponse' => function (Kirby\Cms\File $file, $clip = null) {
             if ($this->layout === 'list') {
                 $thumb = [
-                    'width'  => option('mullema.k3-image-clip.panelthumbs')['list']['width'] ?? 100,
-                    'height' => option('mullema.k3-image-clip.panelthumbs')['list']['height'] ?? 100
+                    'width'  => option('panelthumbs')['list']['width'] ?? option('mullema.k3-image-clip.panelthumbs')['list']['width'] ?? 100,
+                    'height' => option('panelthumbs')['list']['height'] ?? option('mullema.k3-image-clip.panelthumbs')['list']['height'] ?? 100
                 ];
             } else {
                 $thumb = [
-                    'width'  => option('mullema.k3-image-clip.panelthumbs')['cards']['width'] ?? 400,
-                    'height' => option('mullema.k3-image-clip.panelthumbs')['cards']['width'] ?? 400
+                    'width'  => option('panelthumbs')['cards']['width'] ?? option('mullema.k3-image-clip.panelthumbs')['cards']['width'] ?? 400,
+                    'height' => option('panelthumbs')['cards']['height'] ?? option('mullema.k3-image-clip.panelthumbs')['cards']['height'] ?? 400
                 ];
             }
 
