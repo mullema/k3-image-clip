@@ -1,4 +1,5 @@
 import Croppr from 'croppr';
+import debounce from '../helpers/debounce.js'
 
 /**
  * Facade to Croppr
@@ -24,6 +25,18 @@ export default class {
         this.ratio = clip ? clip.ratio : null;
 
         this.validate();
+        this.cropInstance = this.init();
+
+        window.addEventListener("resize", debounce(
+            this.reset.bind(this)
+        , 500), false);
+    }
+
+    /**
+     * reset all of the croppr instance and adjust to new environment
+     */
+    reset() {
+        this.cropInstance.destroy();
         this.cropInstance = this.init();
     }
 
