@@ -69,7 +69,7 @@ query: site.find('photography').children.images.filterBy('template', 'cover')
 ```
 
 ### Panel thumb size
-In the plugins index.php you can adjust the maximal thumbnail sizes that are displayed in the `image-clip` field.
+In kirbys config.pgp you can adjust the maximal thumbnail sizes that are displayed in the `image-clip` field.
 Default is 400px width or 400px height for cards and 100px width or 100px height for lists. 
 
 If your cards get bigger you might want to adjust the numbers to 800x800px.
