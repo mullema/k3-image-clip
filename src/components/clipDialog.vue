@@ -51,6 +51,7 @@
 
 <script>
     import Croppr from "../facade/CropprFacade.js";
+    import aspectRatioFit from "../helpers/aspectRatioFit.js"
 
     export default {
         extends: 'k-dialog',
@@ -101,6 +102,9 @@
             }
         },
         methods: {
+            remToPx(px = 1) {
+                return px * parseInt(getComputedStyle(document.documentElement).fontSize);
+            },
             submit() {
                 this.$emit("submit", {
                     id: this.image.id,
@@ -109,18 +113,22 @@
                 this.close();
             },
             setDialogWidth() {
-                let viewportWidth = window.innerWidth;
+                let max_width = window.innerWidth - this.remToPx(6);
+                let max_height = window.innerHeight - this.remToPx(6);
 
-                if (this.image.dimensions.width > this.image.dimensions.height) {
-                    // landscape
-                    this.dialog_width = (viewportWidth > this.image.dimensions.width) ? "width: " + this.image.dimensions.width + "px;" : "width: 90vw;";
+                let size = aspectRatioFit({
+                    srcWidth: this.image.dimensions.width,
+                    srcHeight: this.image.dimensions.height,
+                    maxWidth: max_width,
+                    maxHeight: max_height
+                });
+
+                let width = this.image.dimensions.width;
+                if (this.image.dimensions.width > max_width || this.image.dimensions.height > max_height) {
+                    width = size.width;
                 }
-                else {
-                    // portrait + square
-                    // rem to px conversion
-                    let largeDialog = 40 * parseInt(getComputedStyle(document.documentElement).fontSize);
-                    this.dialog_width = (largeDialog > this.image.dimensions.width) ? "width: " + this.image.dimensions.width + "px;" : null;
-                }
+
+                this.dialog_width = "width: " + width + "px;";
             }
         }
     }
