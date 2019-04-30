@@ -92,6 +92,7 @@ __Note__: This is only about thumbnail quality in the panel. You don't need to m
 
 ## Frontend Usage
 How to fetch the images defined in a `image-clip` field.
+Read about the `clip()` method a bit further down.
 #### Multiple Images
 ```php
 foreach($page->myimages()->toImages() as $image) {
@@ -112,6 +113,8 @@ if ($image = $page->myimages()->toImage()) {
 
 
 #### `$file->clip()`
+Clip and resize. Generates a Thumbnail of the clip area.
+
 Adapter for `$file->thumb()`. Returns a FileVersion|File Object.
 ```php
 $file->clip(200, 300);   // bestfit
@@ -120,7 +123,6 @@ $file->clip(null, 300);  // height 300px
 $file->clip();           // clip area without resizing
 ```
 - Used in combination with the `image-clip` Field, invokes automatically field clip data.
-- Generates a Thumbnail of the clip area.
 - Arguments: `clip(width, height)`
     - if `width` and `height` are both defined, the image will be resized with `bestfit`
 
