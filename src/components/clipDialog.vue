@@ -93,9 +93,17 @@
                                 saved: this.image.clip
                             });
 
+                            // on window resize show spinner and reset Croppr Instance
+                            window.addEventListener("resize", (event) => {
+                                if (this.showSpinner === false) {
+                                    this.showSpinner = true;
+                                }
+                            });
+
                             window.addEventListener("resize", debounce(() => {
                                     this.setDialogWidth();
                                     this.cropprInstance.reset();
+                                    this.showSpinner = false;
                                 }
                             , 500), false);
                         }
