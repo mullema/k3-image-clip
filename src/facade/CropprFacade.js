@@ -1,6 +1,5 @@
 import Croppr from 'croppr';
-import debounce from '../helpers/debounce.js'
-import aspectRatioFit from "../helpers/aspectRatioFit.js"
+import aspectRatioFit from "../helpers/aspectRatioFit.js";
 
 /**
  * Facade to Croppr
@@ -27,10 +26,6 @@ export default class {
 
         this.validate();
         this.cropInstance = this.init();
-
-        window.addEventListener("resize", debounce(
-            this.reset.bind(this)
-        , 500), false);
     }
 
     /**

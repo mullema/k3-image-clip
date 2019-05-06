@@ -51,7 +51,8 @@
 
 <script>
     import Croppr from "../facade/CropprFacade.js";
-    import aspectRatioFit from "../helpers/aspectRatioFit.js"
+    import aspectRatioFit from "../helpers/aspectRatioFit.js";
+    import debounce from '../helpers/debounce.js';
 
     export default {
         extends: 'k-dialog',
@@ -76,7 +77,7 @@
             isOpen (newVal, oldVal) {
                 if (newVal === true) {
                     this.setDialogWidth();
-                    // resize dialog opened
+                    // dialog opened
                     this.$nextTick(() => {
                         let el = document.getElementById('croppr');
 
@@ -91,6 +92,12 @@
                                 clip: this.clip,
                                 saved: this.image.clip
                             });
+
+                            window.addEventListener("resize", debounce(() => {
+                                    this.setDialogWidth();
+                                    this.cropprInstance.reset();
+                                }
+                            , 500), false);
                         }
                         catch(error) {
                             this.cancel();
