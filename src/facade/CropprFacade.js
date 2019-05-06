@@ -1,6 +1,5 @@
 import Croppr from 'croppr';
-import debounce from '../helpers/debounce.js'
-import aspectRatioFit from "../helpers/aspectRatioFit.js"
+import aspectRatioFit from "../helpers/aspectRatioFit.js";
 
 /**
  * Facade to Croppr
@@ -27,17 +26,15 @@ export default class {
 
         this.validate();
         this.cropInstance = this.init();
-
-        window.addEventListener("resize", debounce(
-            this.reset.bind(this)
-        , 500), false);
     }
 
     /**
      * reset all of the croppr instance and adjust to new environment
+     * @param {Object} position - last known position of crop area
      */
-    reset() {
+    reset({position}) {
         this.cropInstance.destroy();
+        this.saved = position;
         this.cropInstance = this.init();
     }
 
@@ -56,7 +53,7 @@ export default class {
                     this.factor_w = this.original_dimensions.width / event.target.clientWidth;
                     this.factor_h = this.original_dimensions.height / event.target.clientHeight;
                     this.setStartPosition();
-                });
+                }, false);
             }
         };
 

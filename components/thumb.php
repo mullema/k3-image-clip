@@ -15,6 +15,9 @@ use Kirby\Toolkit\F;
  */
 return function (App $kirby, string $src, string $dst, array $options) {
     if (isset($options['clip'])) {
+
+        $types = Kirby\Image\Darkroom::$types;
+
         Kirby\Image\Darkroom::$types['gd'] = 'mullema\GdLib';
         Kirby\Image\Darkroom::$types['im'] = 'mullema\ImageMagick';
 
@@ -23,6 +26,10 @@ return function (App $kirby, string $src, string $dst, array $options) {
         $root     = (new mullema\Filename($src, $dst, $options))->toString();
         F::copy($src, $root);
         $darkroom->process($root, $options);
+
+        // reset types
+        Kirby\Image\Darkroom::$types = $types;
+
         return $root;
     }
 
