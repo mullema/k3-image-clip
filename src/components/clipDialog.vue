@@ -114,7 +114,7 @@
             },
             setDialogWidth() {
                 let max_width = window.innerWidth - this.remToPx(6);
-                let max_height = window.innerHeight - this.remToPx(6);
+                let max_height = window.innerHeight - this.remToPx(12);
 
                 let size = aspectRatioFit({
                     srcWidth: this.image.dimensions.width,
