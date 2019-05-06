@@ -1,10 +1,10 @@
 <template>
     <k-field v-bind="$props" class="k-files-field">
         <k-button
-                v-if="more"
-                slot="options"
-                icon="add"
-                @click="open"
+            v-if="more && !disabled"
+            slot="options"
+            icon="add"
+            @click="open"
         >
             {{ $t('select') }}
         </k-button>
@@ -20,7 +20,7 @@
                     v-for="(file, index) in selected"
                     :is="elements.item"
                     :key="file.filename"
-                    :sortable="selected.length > 1"
+                    :sortable="!disabled && selected.length > 1"
                     :text="file.text"
                     :link="file.link"
                     :info="file.info"
@@ -28,9 +28,11 @@
                     :icon="file.icon"
                     :id="file.id"
                     :resizable="file.resizable"
+                    :disabled="disabled"
                     @openclipdialog="openClipDialog"
                 >
                     <k-button
+                        v-if="!disabled"
                         slot="options"
                         :tooltip="$t('remove')"
                         icon="remove"
@@ -43,7 +45,7 @@
             v-else
             :layout="layout"
             icon="image"
-            @click="open"
+            @click="shouldOpen"
         >
             {{ empty || $t('field.files.empty') }}
         </k-empty>
@@ -57,6 +59,7 @@
         />
     </k-field>
 </template>
+
 
 <script>
 export default {
@@ -91,6 +94,12 @@ export default {
         },
     },
     methods: {
+        // quickfix https://github.com/getkirby/kirby/issues/1752
+        shouldOpen() {
+           if (this.more && !this.disabled)  {
+               this.open();
+           }
+        },
         openClipDialog(id) {
             this.clip_image = this.value.find(item => item.id === id);
             this.$refs.clip.open();

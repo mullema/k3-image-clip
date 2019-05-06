@@ -1,7 +1,7 @@
 <template>
     <figure class="k-card" v-on="$listeners">
         <k-sort-handle class="native" v-if="sortable" />
-        <k-clip-handle v-if="resizable" @clicked="openClipDialog" />
+        <k-clip-handle v-if="resizable && !disabled" @clicked="openClipDialog" />
 
         <component :is="wrapper" :to="link" :target="target">
             <k-image
@@ -53,7 +53,8 @@
         extends: 'k-card',
         props: {
             id: String,
-            resizable: Boolean
+            resizable: Boolean,
+            disabled: Boolean
         },
         methods: {
             openClipDialog() {
