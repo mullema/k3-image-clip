@@ -7,7 +7,7 @@
             </div>
             <div class="k-dialog-body" v-if="image">
 
-                <div class="preload" v-if="showSpinner">
+                <div class="preload" v-if="spinner">
                     <div class="spinner">
                         <div class="bounce1"></div>
                         <div class="bounce2"></div>
@@ -70,7 +70,7 @@
             return {
                 cropprInstance: null,
                 dialog_width: null,
-                showSpinner: true
+                spinner: true
             }
         },
         watch: {
@@ -81,9 +81,10 @@
                     this.$nextTick(() => {
                         let el = document.getElementById('croppr');
 
-                        el.addEventListener("load", (event) => {
-                            this.showSpinner = false;
-                        });
+                        el.addEventListener("load", this.hideSpinner, false);
+                        if (el.complete) { // if already in cache
+                            this.hideSpinner();
+                        }
 
                         try {
                             this.cropprInstance = new Croppr({
@@ -94,18 +95,9 @@
                             });
 
                             // on window resize show spinner and reset Croppr Instance
-                            window.addEventListener("resize", (event) => {
-                                if (this.showSpinner === false) {
-                                    this.showSpinner = true;
-                                }
-                            });
+                            window.addEventListener("resize", this.showSpinner, false);
+                            window.addEventListener("resize", this.resizeDialog, false);
 
-                            window.addEventListener("resize", debounce(() => {
-                                    this.setDialogWidth();
-                                    this.cropprInstance.reset();
-                                    this.showSpinner = false;
-                                }
-                            , 500), false);
                         }
                         catch(error) {
                             this.cancel();
@@ -113,6 +105,10 @@
                             this.$store.dispatch("notification/error", error.message);
                         }
                     });
+                }
+                else {
+                    window.removeEventListener("resize", this.showSpinner, false);
+                    window.removeEventListener("resize", this.resizeDialog, false);
                 }
             }
         },
@@ -144,6 +140,20 @@
                 }
 
                 this.dialog_width = "width: " + width + "px;";
+            },
+            resizeDialog: debounce(function() {
+                this.setDialogWidth();
+                let last_known = this.cropprInstance.getCropArea();
+                this.cropprInstance.reset({position: last_known});
+                this.spinner = false;
+            }, 500),
+            hideSpinner: function() {
+                this.spinner = false;
+            },
+            showSpinner: function() {
+                if (this.spinner === false) {
+                    this.spinner = true;
+                }
             }
         }
     }
