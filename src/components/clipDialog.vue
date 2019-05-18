@@ -77,6 +77,7 @@
             isOpen (newVal, oldVal) {
                 if (newVal === true) {
                     this.setDialogWidth();
+                    this.showSpinner();
                     // dialog opened
                     this.$nextTick(() => {
                         let el = document.getElementById('croppr');
