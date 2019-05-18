@@ -10,6 +10,10 @@ Visual image clipping / cropping.
 - [Consider a donation](#Consider-a-donation)
 - [Panel Usage](#Panel-usage)
 - [Frontend Usage](#Frontend-usage)
+   - [Single Image](#single-image)
+   - [Multiple Images](#multiple-images)
+   - [File Methods](#file-methods)
+   - [Responsive: srcset](#file-srcset)
 - [License](#License)
 
 ## Installation
@@ -93,16 +97,8 @@ __Note__: This is only about thumbnail quality in the panel. You don't need to m
 ## Frontend Usage
 How to fetch the images defined in a `image-clip` field.
 Read about the `clip()` method a bit further down.
-#### Multiple Images
-```php
-foreach($page->myimages()->toImages() as $image) {
-    echo $image->clip(500);
-}
-```
-- **Important:** ~~toFiles~~ does not work, use `toImages()` instead.
-- `toImages()` returns a Files Collection with all it's functions.
 
-#### Single Image
+### Single Image
 ```php
 if ($image = $page->myimages()->toImage()) {
     echo $image->clip(500);
@@ -111,11 +107,27 @@ if ($image = $page->myimages()->toImage()) {
 - **Important:** ~~toFile~~ does not work, use `toImage()` instead.
 - `toImage()` returns a File Object with all it's functions.
 
+### Multiple Images
+```php
+foreach($page->myimages()->toImages() as $image) {
+    echo $image->clip(500);
+}
+```
+- **Important:** ~~toFiles~~ does not work, use `toImages()` instead.
+- `toImages()` returns a Files Collection with all it's functions.
+
+
+### File Methods
 
 #### `$file->clip()`
 Clip and resize. Generates a Thumbnail of the clip area.
 
 Adapter for `$file->thumb()`. Returns a FileVersion|File Object.
+```php
+if ($image = $page->myimages()->toImage()) {
+    echo $image->clip(500);
+}
+```
 ```php
 $file->clip(200, 300);   // bestfit
 $file->clip(200);        // width 200px
@@ -127,7 +139,17 @@ $file->clip();           // clip area without resizing
     - if `width` and `height` are both defined, the image will be resized with `bestfit`
 
 
-### Improved `$file->thumb()`
+#### `$file->srcset()`
+Use this method to generate the srcset attribute for responsive images.
+Read more about it's functionality in the [Kirby3 Docs](https://getkirby.com/docs/guide/templates/resize-images-on-the-fly#responsive-images)
+```html
+<?php if ($image = $page->myimages()->toImage()): ?>
+    <img srcset="<?= $image->srcset([300, 800, 1024]) ?>">
+<?php endif; ?>
+```
+
+
+#### `$file->thumb()`
 The thumb method accepts now the option `clip` and can be used with any resizable image.
 ```php
 $file->thumb([
@@ -146,7 +168,7 @@ $file->thumb([
 
 Read more about the `thumb` method in the [Kirby3 Docs](https://getkirby.com/docs/reference/objects/file/thumb)
 
-### Helper `$file->getClip()`
+#### `$file->getClip()`
 Returns the clip data.
 
 Can be useful e.g with the `$file->thumb()` method.

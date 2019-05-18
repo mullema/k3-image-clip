@@ -45,7 +45,7 @@
             v-else
             :layout="layout"
             icon="image"
-            @click="shouldOpen"
+            v-on="{ click: !disabled ? open : null }"
         >
             {{ empty || $t('field.files.empty') }}
         </k-empty>
@@ -94,12 +94,6 @@ export default {
         },
     },
     methods: {
-        // quickfix https://github.com/getkirby/kirby/issues/1752
-        shouldOpen() {
-           if (this.more && !this.disabled)  {
-               this.open();
-           }
-        },
         openClipDialog(id) {
             this.clip_image = this.value.find(item => item.id === id);
             this.$refs.clip.open();

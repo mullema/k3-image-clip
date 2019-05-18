@@ -22,7 +22,7 @@
       </span>
         </k-link>
         <nav class="k-list-item-options">
-            <k-clip-button v-if="resizable" @clicked="openClipDialog" />
+            <k-clip-button v-if="resizable && !disabled" @clicked="openClipDialog" />
             <slot name="options">
                 <k-button
                     v-if="flag"
