@@ -10,6 +10,9 @@ Visual image clipping / cropping.
 - [Consider a donation](#Consider-a-donation)
 - [Panel Usage](#Panel-usage)
 - [Frontend Usage](#Frontend-usage)
+   - [Single Image](#single-image)
+   - [Multiple Images](#multiple-images)
+   - [Responsive: srcset](#file-srcset)
 - [License](#License)
 
 ## Installation
@@ -93,14 +96,6 @@ __Note__: This is only about thumbnail quality in the panel. You don't need to m
 ## Frontend Usage
 How to fetch the images defined in a `image-clip` field.
 Read about the `clip()` method a bit further down.
-#### Multiple Images
-```php
-foreach($page->myimages()->toImages() as $image) {
-    echo $image->clip(500);
-}
-```
-- **Important:** ~~toFiles~~ does not work, use `toImages()` instead.
-- `toImages()` returns a Files Collection with all it's functions.
 
 #### Single Image
 ```php
@@ -110,6 +105,16 @@ if ($image = $page->myimages()->toImage()) {
 ```
 - **Important:** ~~toFile~~ does not work, use `toImage()` instead.
 - `toImage()` returns a File Object with all it's functions.
+
+#### Multiple Images
+```php
+foreach($page->myimages()->toImages() as $image) {
+    echo $image->clip(500);
+}
+```
+- **Important:** ~~toFiles~~ does not work, use `toImages()` instead.
+- `toImages()` returns a Files Collection with all it's functions.
+
 
 
 #### `$file->clip()`
@@ -125,6 +130,16 @@ $file->clip();           // clip area without resizing
 - Used in combination with the `image-clip` Field, invokes automatically field clip data.
 - Arguments: `clip(width, height)`
     - if `width` and `height` are both defined, the image will be resized with `bestfit`
+
+
+#### `$file->srcset()`
+Use this method to generate the srcset attribute for responsive images.
+Read more about it's functionality in the [Kirby3 Docs](https://getkirby.com/docs/guide/templates/resize-images-on-the-fly#responsive-images)
+```php
+<?php if ($image = $page->myimages()->toImage()): ?>
+    <img srcset="<?= $image->srcset([300, 800, 1024]) ?>">
+<?php endif; ?>
+```
 
 
 ### Improved `$file->thumb()`
