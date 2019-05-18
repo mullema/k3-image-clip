@@ -1,7 +1,7 @@
 # Kirby 3: Image Clip
 Visual image clipping / cropping.
 
-![Image Clip](https://www.moeli.com/github/image-clip.PNG)
+![Image Clip](https://sjc2.discourse-cdn.com/standard17/uploads/getkirby/optimized/2X/0/0e4da1619ba1abed2a2c263388d72e843eb7a978_2_604x499.gif)
 
 ## Overview
 
