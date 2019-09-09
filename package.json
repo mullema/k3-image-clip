@@ -10,9 +10,9 @@
     "build": "bili"
   },
   "devDependencies": {
-    "bili": "^4.7.3",
+    "bili": "^4.8.1",
     "rollup-plugin-img": "^1.1.0",
-    "rollup-plugin-vue": "^5.0.0",
+    "rollup-plugin-vue": "^5.0.1",
     "vue-template-compiler": "^2.6.10"
   },
   "dependencies": {
