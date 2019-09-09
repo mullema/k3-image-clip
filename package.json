@@ -16,6 +16,6 @@
     "vue-template-compiler": "^2.6.10"
   },
   "dependencies": {
-    "croppr": "^2.3.1"
+    "croppr": "github:mullema/Croppr.js"
   }
 }
