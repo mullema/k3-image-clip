@@ -13,8 +13,9 @@ export default class {
      * @param {Object} original_dimensions - From file on disk
      * @param {Object} saved - Crop data from disk
      * @param {Object} clip - Blueprint options
+     * @param {Object} events
      */
-    constructor({el, original_dimensions, saved, clip}) {
+    constructor({el, original_dimensions, saved, clip, events}) {
         this.el = el;
         this.original_dimensions = original_dimensions;
         this.saved = saved;
@@ -25,6 +26,7 @@ export default class {
         this.limit_width = null;
         this.limit_height = null;
         this.ratio = clip ? clip.ratio : null;
+        this.events = events;
 
         this.validate();
         this.cropInstance = this.init();
@@ -56,7 +58,8 @@ export default class {
                     this.factor_h = this.original_dimensions.height / event.target.clientHeight;
                     this.setStartPosition();
                 }, false);
-            }
+            },
+            ...this.events
         };
 
         if (this.min_width && this.min_height) {
