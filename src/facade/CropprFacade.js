@@ -22,6 +22,8 @@ export default class {
         this.min_height = clip ? clip.minheight : null;
         this.max_width = clip ? clip.maxwidth : null;
         this.max_height = clip ? clip.maxheight : null;
+        this.limit_width = null;
+        this.limit_height = null;
         this.ratio = clip ? clip.ratio : null;
 
         this.validate();
@@ -60,11 +62,15 @@ export default class {
         if (this.min_width && this.min_height) {
             options.aspectRatio = (this.ratio === 'fixed') ? this.min_height / this.min_width : null;
             options.minSize = [this.min_width, this.min_height, 'px'];
+            this.limit_width = this.min_width;
+            this.limit_height = this.min_height;
         }
 
         if (this.max_width && this.max_height) {
             options.aspectRatio = (this.ratio === 'fixed') ? this.max_height / this.max_width : null;
             options.maxSize = [this.max_width, this.max_height, 'px'];
+            this.limit_width = this.max_width;
+            this.limit_height = this.max_height;
         }
 
         return new Croppr(this.el, options);
@@ -76,12 +82,15 @@ export default class {
      */
     getCropArea() {
         let coord = this.cropInstance.getValue();
-        return {
-            width:  Math.floor(coord.width * this.factor_w),
-            height: Math.floor(coord.height * this.factor_h),
-            left: Math.floor(coord.x * this.factor_w),
-            top: Math.floor(coord.y * this.factor_h)
+        let area = {
+            width: this.roundSize(coord.width * this.factor_w, this.limit_width),
+            height: this.roundSize(coord.height * this.factor_h, this.limit_height)
         };
+
+        area.left = this.adjustPosition(coord.x * this.factor_w, area.width, this.original_dimensions.width);
+        area.top = this.adjustPosition(coord.y * this.factor_h, area.height, this.original_dimensions.height);
+
+        return area;
     }
 
     /**
@@ -127,10 +136,10 @@ export default class {
         else {
             // set to position of saved cropped image
             let calculated = {
-                width:  Math.floor(this.saved.width / this.factor_w),
-                height: Math.floor(this.saved.height / this.factor_h),
-                left: Math.floor(this.saved.left / this.factor_w),
-                top: Math.floor(this.saved.top / this.factor_h)
+                width:  Math.round(this.saved.width / this.factor_w),
+                height: Math.round(this.saved.height / this.factor_h),
+                left: Math.round(this.saved.left / this.factor_w),
+                top: Math.round(this.saved.top / this.factor_h)
             };
 
             this.cropInstance.resizeTo(calculated.width, calculated.height);
@@ -156,5 +165,29 @@ export default class {
             && (this.min_width / this.min_height) !== (this.max_width / this.max_height)) {
             throw new Error(`Ratio must be same for min and max`);
         }
+    }
+
+
+    /**
+     *  Return the rounded coordinates
+     *  If 1px or less from defined limit, round to the limit
+     * @param value
+     * @param limit
+     * @returns {number|*}
+     */
+    roundSize(value, limit = null) {
+        return (limit && limit - value >= -1 && limit - value <= 1) ? limit : Math.round(value);
+    }
+
+    /**
+     *  Return the adjusted position
+     *  Corrects for 1px rounding errors and makes sure selection is always inside image
+     * @param position
+     * @param size
+     * @param limit
+     * @returns {number}
+     */
+    adjustPosition(position, size, limit) {
+        return (position + size > limit) ? limit - size : Math.round(position);
     }
 }
