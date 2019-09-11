@@ -1,15 +1,12 @@
 <template>
     <figure class="k-card" v-on="$listeners">
-        <k-sort-handle class="native" v-if="sortable" />
+        <k-sort-handle v-if="sortable" />
         <k-clip-handle v-if="resizable && !disabled" @clicked="openClipDialog" />
 
         <component :is="wrapper" :to="link" :target="target">
             <k-image
-                v-if="image && image.url"
-                :src="image.url"
-                :ratio="image.ratio || '3/2'"
-                :back="image.back || 'black'"
-                :cover="image.cover"
+                v-if="imageOptions"
+                v-bind="imageOptions"
                 class="k-card-image"
             />
             <span v-else :style="'padding-bottom:' + ratioPadding" class="k-card-icon">
@@ -51,10 +48,14 @@
 <script>
     export default {
         extends: 'k-card',
+        created() {
+          console.log(this.image)
+        },
         props: {
             id: String,
             resizable: Boolean,
-            disabled: Boolean
+            disabled: Boolean,
+            thumbnail: String
         },
         methods: {
             openClipDialog() {

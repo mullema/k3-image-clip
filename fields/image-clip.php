@@ -2,7 +2,7 @@
 
 use Kirby\Data\Yaml;
 
-$base = require kirby()->roots()->kirby . DIRECTORY_SEPARATOR . 'config' . DIRECTORY_SEPARATOR . 'fields' . DIRECTORY_SEPARATOR . 'files.php';
+$base = require kirby()->root('kirby') . DIRECTORY_SEPARATOR . 'config' . DIRECTORY_SEPARATOR . 'fields' . DIRECTORY_SEPARATOR . 'files.php';
 
 return array_replace_recursive($base, [
     'props' => [
@@ -11,55 +11,38 @@ return array_replace_recursive($base, [
         }
     ],
     'methods' => [
-        'fileResponse' => function (Kirby\Cms\File $file, $clip = null) {
-            if ($this->layout === 'list') {
-                $thumb = [
-                    'width'  => option('panelthumbs')['list']['width'] ?? option('mullema.k3-image-clip.panelthumbs')['list']['width'] ?? 100,
-                    'height' => option('panelthumbs')['list']['height'] ?? option('mullema.k3-image-clip.panelthumbs')['list']['height'] ?? 100
-                ];
-            } else {
-                $thumb = [
-                    'width'  => option('panelthumbs')['cards']['width'] ?? option('mullema.k3-image-clip.panelthumbs')['cards']['width'] ?? 400,
-                    'height' => option('panelthumbs')['cards']['height'] ?? option('mullema.k3-image-clip.panelthumbs')['cards']['height'] ?? 400
-                ];
-            }
-
-            if ($clip) {
-                $thumb['clip'] = $clip;
-            }
-
-            $image = $file->panelImage($this->image, $thumb);
-            $model = $this->model();
-            $uuid  = $file->parent() === $model ? $file->filename() : $file->id();
-
-            return [
-                'filename' => $file->filename(),
-                'text'     => $file->toString($this->text),
-                'link'     => $file->panelUrl(true),
-                'id'       => $file->id(),
-                'uuid'     => $uuid,
-                'url'      => $file->url(),
-                'info'     => $file->toString($this->info ?? false),
-                'image'    => $image,
-                'icon'     => $file->panelIcon($image),
-                'type'     => $file->type(),
-                'resizable' => $file->isResizable(),     // trigger for clip handler
-                'clip'      => $clip,
-                'dimensions' => $file->dimensions()
-            ];
+        'fileResponse' => function ($file, $clip = null) {
+            return array_merge(
+                $file->panelPickerData([
+                    'image' => $this->image,
+                    'info'  => $this->info ?? false,
+                    'model' => $this->model(),
+                    'text'  => $this->text,
+                ]),
+                // append more information for clip field
+                [
+                    'resizable' => $file->isResizable(),
+                    'clip' => $clip,
+                    'dimensions' => $file->dimensions(),
+                    // panel iamge does not accept thumb anymore...do it yourself
+                    // make my own srcset method based on https://github.com/getkirby/kirby/blob/03d6e96aa27f631e5311cb6c2109e1510505cab7/src/Cms/ModelWithContent.php#L301
+                    // array replace and rewrite panelImage method to clip 
+                    'thumbnail' => $file->thumb(['clip' => $clip])->url()
+                ]);
         },
         'toFiles' => function ($value = null) {
             $files = [];
-
-            foreach (Yaml::decode($value) as $item) {
-                 if ($item['id'] !== null && ($file = $this->kirby()->file($item['id'], $this->model()))) {
-                     $files[] = $this->fileResponse($file, $item['clip'] ?? null);
-                }
+                foreach (Yaml::decode($value) as $item) {
+                    if ($item['id'] !== null && ($file = $this->kirby()->file($item['id'], $this->model()))) {
+                        $files[] = $this->fileResponse($file, $item['clip'] ?? null);
+                    }
             }
 
             return $files;
         }
     ],
+
+    /*
     'api' => function () {
         return [
             [
@@ -86,6 +69,8 @@ return array_replace_recursive($base, [
             ]
         ];
     },
+    */
+
     'save' => function ($value = null) {
         $result = [];
         foreach ($value as $item) {

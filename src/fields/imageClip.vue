@@ -1,13 +1,30 @@
 <template>
     <k-field v-bind="$props" class="k-files-field">
-        <k-button
-            v-if="more && !disabled"
-            slot="options"
-            icon="add"
-            @click="open"
-        >
-            {{ $t('select') }}
-        </k-button>
+
+        <template v-if="more && !disabled" slot="options">
+            <k-button-group class="k-field-options">
+                <template v-if="uploads">
+                    <k-dropdown>
+                        <k-button
+                                ref="pickerToggle"
+                                icon="add"
+                                class="k-field-options-button"
+                                @click="$refs.picker.toggle()"
+                        >
+                            {{ $t('add') }}
+                        </k-button>
+                        <k-dropdown-content ref="picker" align="right">
+                            <k-dropdown-item icon="check" @click="open">{{ $t('select') }}</k-dropdown-item>
+                            <k-dropdown-item icon="upload" @click="upload">{{ $t('upload') }}</k-dropdown-item>
+                        </k-dropdown-content>
+                    </k-dropdown>
+                </template>
+                <template v-else>
+                    <k-button icon="add" class="k-field-options-button" @click="open">{{ $t('add') }}</k-button>
+                </template>
+            </k-button-group>
+        </template>
+
         <template v-if="selected.length">
             <k-draggable
                 :element="elements.list"
@@ -26,9 +43,11 @@
                     :info="file.info"
                     :image="file.image"
                     :icon="file.icon"
+
                     :id="file.id"
                     :resizable="file.resizable"
-                    :disabled="disabled"
+                    :disabled="file.disabled"
+                    :thumbnail="file.thumbnail"
                     @openclipdialog="openClipDialog"
                 >
                     <k-button
@@ -45,11 +64,12 @@
             v-else
             :layout="layout"
             icon="image"
-            v-on="{ click: !disabled ? open : null }"
+            @click="open"
         >
             {{ empty || $t('field.files.empty') }}
         </k-empty>
         <k-files-dialog ref="selector" @submit="select" />
+        <k-upload ref="fileUpload" @success="selectUpload" />
         <k-clip-dialog
             ref="clip"
             size="large"
