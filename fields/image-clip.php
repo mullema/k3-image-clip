@@ -1,6 +1,7 @@
 <?php
 
 use Kirby\Data\Yaml;
+use mullema\File;
 
 $base = require kirby()->root('kirby') . DIRECTORY_SEPARATOR . 'config' . DIRECTORY_SEPARATOR . 'fields' . DIRECTORY_SEPARATOR . 'files.php';
 
@@ -12,8 +13,26 @@ return array_replace_recursive($base, [
     ],
     'methods' => [
         'fileResponse' => function ($file, $clip = null) {
+            // native response https://github.com/getkirby/kirby/blob/80b69380e672565a849037232c9951d1e32774c8/config/fields/files.php#L69
+            if (!$clip) {
+                return $file->panelPickerData([
+                    'image' => $this->image,
+                    'info'  => $this->info ?? false,
+                    'model' => $this->model(),
+                    'text'  => $this->text,
+                ]);
+            }
+
+            // with clip data create new mullema\File object with adjusted srcset method
+            $clipfile = new File([
+                'filename' => $file->filename(),
+                'parent' => $file->parent()
+            ]);
+
+            $clipfile->setClip($clip);
+
             return array_merge(
-                $file->panelPickerData([
+                $clipfile->panelPickerData([
                     'image' => $this->image,
                     'info'  => $this->info ?? false,
                     'model' => $this->model(),
@@ -21,19 +40,16 @@ return array_replace_recursive($base, [
                 ]),
                 // append more information for clip field
                 [
-                    'resizable' => $file->isResizable(),
+                    'resizable' => $clipfile->isResizable(),
                     'clip' => $clip,
-                    'dimensions' => $file->dimensions(),
-                    // panel iamge does not accept thumb anymore...do it yourself
-                    // make my own srcset method based on https://github.com/getkirby/kirby/blob/03d6e96aa27f631e5311cb6c2109e1510505cab7/src/Cms/ModelWithContent.php#L301
-                    // array replace and rewrite panelImage method to clip 
-                    'thumbnail' => $file->thumb(['clip' => $clip])->url()
+                    'dimensions' => $clipfile->dimensions()
                 ]);
         },
         'toFiles' => function ($value = null) {
             $files = [];
                 foreach (Yaml::decode($value) as $item) {
                     if ($item['id'] !== null && ($file = $this->kirby()->file($item['id'], $this->model()))) {
+                        // add clip as parameter to fileResponse call
                         $files[] = $this->fileResponse($file, $item['clip'] ?? null);
                     }
             }

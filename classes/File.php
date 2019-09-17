@@ -36,47 +36,6 @@ class File extends Cms\File {
     }
 
     /**
-     * Create a srcset definition for the given sizes
-     * Sizes can be defined as a simple array. They can
-     * also be set up in the config with the thumbs.srcsets option.
-     *
-     * From: https://github.com/getkirby/kirby/blob/2b0bfd0b47a308e09117bac95ac674fdf50ce36c/src/Cms/FileModifications.php#L102
-     *
-     * @param array|string $sizes
-     * @return string
-     * @throws \Kirby\Exception\InvalidArgumentException
-
-    public function srcset($sizes = null): ?string
-    {
-        if (empty($sizes) === true) {
-            $sizes = $this->kirby()->option('thumbs.srcsets.default', []);
-        }
-
-        if (is_string($sizes) === true) {
-            $sizes = $this->kirby()->option('thumbs.srcsets.' . $sizes, []);
-        }
-
-        if (is_array($sizes) === false || empty($sizes) === true) {
-            return null;
-        }
-
-        $set = [];
-        foreach ($sizes as $key => $value) {
-            if (is_string($value) === true) {
-                $size = $key;
-                $attr = $value;
-            } else {
-                $size = $value;
-                $attr = $value . 'w';
-            }
-
-            $set[] = $this->clip($size)->url() . ' ' . $attr;
-        }
-
-        return implode(', ', $set);
-    }*/
-
-    /**
      * Add Clip functionality to srcset
      * https://github.com/getkirby/kirby/blob/80b69380e672565a849037232c9951d1e32774c8/src/Cms/FileModifications.php#L110
      *
@@ -116,8 +75,13 @@ class File extends Cms\File {
                 ];
                 $condition = $value . 'w';
             }
-            $set[] = $this->clip($options)->url() . ' ' . $condition;
+
+            // add clip information
+            $options['clip'] = $this->getClip();
+
+            $set[] = $this->thumb($options)->url() . ' ' . $condition;
         }
+
         return implode(', ', $set);
     }
 }
