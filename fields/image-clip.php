@@ -40,9 +40,21 @@ return array_replace_recursive($base, [
         'toFiles' => function ($value = null) {
             $files = [];
                 foreach (Yaml::decode($value) as $item) {
-                    if ($item['id'] !== null && ($file = $this->kirby()->file($item['id'], $this->model()))) {
+
+                    // read from native files field
+                    if (!is_array($item)) {
+                        $id = $item;
+                        $clip = null;
+                    }
+                    // read image-clip field
+                    else {
+                        $id = $item['id'];
+                        $clip = $item['clip'] ?? null;
+                    }
+
+                    if ($id !== null && ($file = $this->kirby()->file($id, $this->model()))) {
                         // add clip as parameter to fileResponse call
-                        $files[] = $this->fileResponse($file, $item['clip'] ?? null);
+                        $files[] = $this->fileResponse($file, $clip);
                     }
             }
 
