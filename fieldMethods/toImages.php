@@ -17,14 +17,25 @@ return function (Field $field, string $separator = 'yaml') {
 
     foreach ($field->toData($separator) as $value) {
 
-        if ($file = $parent->kirby()->file($value['id'], $parent)) {
+        // read from native files field
+        if (!is_array($value)) {
+            $id = $value;
+            $clip = null;
+        }
+        // read image-clip field
+        else {
+            $id = $value['id'];
+            $clip = $value['clip'] ?? null;
+        }
+
+        if ($file = $parent->kirby()->file($id, $parent)) {
             $clipfile = new File([
                 'filename' => $file->filename(),
                 'parent' => $file->parent()
             ]);
 
             if ($clipfile) {
-                $clipfile->setClip($value['clip'] ?? null);
+                $clipfile->setClip($clip ?? null);
                 $files->add($clipfile);
             }
         }
