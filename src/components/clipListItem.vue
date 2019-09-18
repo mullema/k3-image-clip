@@ -8,15 +8,10 @@
             class="k-list-item-content"
         >
       <span class="k-list-item-image">
-        <k-image
-            v-if="image && image.url"
-            :src="image.url"
-            :back="image.back || 'pattern'"
-            :cover="image.cover"
-        />
+        <k-image v-if="imageOptions" v-bind="imageOptions" />
         <k-icon v-else v-bind="icon" />
       </span>
-            <span class="k-list-item-text">
+        <span class="k-list-item-text">
         <em>{{ text }}</em>
         <small v-if="info" v-html="info" />
       </span>

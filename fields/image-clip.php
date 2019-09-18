@@ -1,8 +1,9 @@
 <?php
 
 use Kirby\Data\Yaml;
+use mullema\File;
 
-$base = require kirby()->roots()->kirby . DIRECTORY_SEPARATOR . 'config' . DIRECTORY_SEPARATOR . 'fields' . DIRECTORY_SEPARATOR . 'files.php';
+$base = require kirby()->root('kirby') . DIRECTORY_SEPARATOR . 'config' . DIRECTORY_SEPARATOR . 'fields' . DIRECTORY_SEPARATOR . 'files.php';
 
 return array_replace_recursive($base, [
     'props' => [
@@ -11,81 +12,178 @@ return array_replace_recursive($base, [
         }
     ],
     'methods' => [
-        'fileResponse' => function (Kirby\Cms\File $file, $clip = null) {
-            if ($this->layout === 'list') {
-                $thumb = [
-                    'width'  => option('panelthumbs')['list']['width'] ?? option('mullema.k3-image-clip.panelthumbs')['list']['width'] ?? 100,
-                    'height' => option('panelthumbs')['list']['height'] ?? option('mullema.k3-image-clip.panelthumbs')['list']['height'] ?? 100
-                ];
-            } else {
-                $thumb = [
-                    'width'  => option('panelthumbs')['cards']['width'] ?? option('mullema.k3-image-clip.panelthumbs')['cards']['width'] ?? 400,
-                    'height' => option('panelthumbs')['cards']['height'] ?? option('mullema.k3-image-clip.panelthumbs')['cards']['height'] ?? 400
-                ];
-            }
-
+        'fileResponse' => function ($file, $clip = null) {
             if ($clip) {
-                $thumb['clip'] = $clip;
+                // with clip data create new mullema\File object with adjusted srcset method
+                $file = new File([
+                    'filename' => $file->filename(),
+                    'parent' => $file->parent()
+                ]);
+
+                $file->setClip($clip);
             }
 
-            $image = $file->panelImage($this->image, $thumb);
-            $model = $this->model();
-            $uuid  = $file->parent() === $model ? $file->filename() : $file->id();
-
-            return [
-                'filename' => $file->filename(),
-                'text'     => $file->toString($this->text),
-                'link'     => $file->panelUrl(true),
-                'id'       => $file->id(),
-                'uuid'     => $uuid,
-                'url'      => $file->url(),
-                'info'     => $file->toString($this->info ?? false),
-                'image'    => $image,
-                'icon'     => $file->panelIcon($image),
-                'type'     => $file->type(),
-                'resizable' => $file->isResizable(),     // trigger for clip handler
-                'clip'      => $clip,
-                'dimensions' => $file->dimensions()
-            ];
+            return array_merge(
+                $file->panelPickerData([
+                    'image' => $this->image,
+                    'info'  => $this->info ?? false,
+                    'model' => $this->model(),
+                    'text'  => $this->text,
+                ]),
+                // append more information for clip field
+                [
+                    'resizable' => $file->isResizable(),
+                    'clip' => $clip,
+                    'dimensions' => $file->dimensions()
+                ]);
         },
         'toFiles' => function ($value = null) {
             $files = [];
-
-            foreach (Yaml::decode($value) as $item) {
-                 if ($item['id'] !== null && ($file = $this->kirby()->file($item['id'], $this->model()))) {
-                     $files[] = $this->fileResponse($file, $item['clip'] ?? null);
-                }
+                foreach (Yaml::decode($value) as $item) {
+                    if ($item['id'] !== null && ($file = $this->kirby()->file($item['id'], $this->model()))) {
+                        // add clip as parameter to fileResponse call
+                        $files[] = $this->fileResponse($file, $item['clip'] ?? null);
+                    }
             }
 
             return $files;
+        },
+        // Adapt filepicker https://github.com/getkirby/kirby/blob/80b69380e672565a849037232c9951d1e32774c8/config/fields/mixins/filepicker.php
+        'filepicker' => function (array $params = []) {
+            // fetch the parent model
+            $model = $this->model();
+            // find the right default query
+            if (empty($params['query']) === false) {
+                $query = $params['query'];
+            } elseif (is_a($model, 'Kirby\Cms\File') === true) {
+                $query = 'file.siblings';
+            } else {
+                $query = $model::CLASS_ALIAS . '.files';
+            }
+            // fetch all files for the picker
+            $files = $model->query($query, 'Kirby\Cms\Files');
+            $data  = [];
+            // prepare the response for each file
+            foreach ($files as $index => $file) {
+                if (empty($params['map']) === false) {
+                    $data[] = $params['map']($file);
+                } else {
+
+                    // adapt for clip field
+                    $data[] = array_merge(
+                        $file->panelPickerData([
+                            'image' => $params['image'] ?? [],
+                            'info'  => $params['info'] ?? false,
+                            'model' => $model,
+                            'text'  => $params['text'] ?? '{{ file.filename }}',
+                        ]),
+                        // append more information for clip field
+                        [
+                            'resizable' => $file->isResizable(),
+                            'dimensions' => $file->dimensions()
+                        ]);
+                }
+            }
+            return $data;
         }
     ],
+
     'api' => function () {
         return [
+            // native field routes
             [
                 'pattern' => '/',
-                'action' => function () {
+                'action'  => function () {
                     $field = $this->field();
-                    $files = $field->model()->query($field->query(), 'Kirby\Cms\Files');
-                    $data  = [];
-                    $saved = $field->value();
-
-                    foreach ($files as $index => $file) {
-                        // https://www.php.net/manual/de/function.array-search.php#116635
-                        $key = array_search((string) $file->id(), array_column($saved, 'id'));
-                        if ($key !== false) {
-                            // get from saved to preserve clip information
-                            $data[] = $saved[$key];
-                        }
-                        else {
-                            $data[] = $field->fileResponse($file);
-                        }
-                    }
-                    return $data;
+                    return $field->filepicker([
+                        'query' => $field->query(),
+                        'image' => $field->image(),
+                        'info'  => $field->info(),
+                        'text'  => $field->text()
+                    ]);
                 }
-            ]
+            ],
+            [
+                'pattern' => 'upload',
+                'method'  => 'POST',
+                'action'  => function () {
+                    $field   = $this->field();
+                    $uploads = $field->uploads();
+                    return $field->upload($this, $uploads, function ($file) use ($field) {
+                        return array_merge(
+                            $file->panelPickerData([
+                                'image' => $field->image(),
+                                'info'  => $field->info(),
+                                'model' => $field->model(),
+                                'text'  => $field->text(),
+                            ]),
+                            // append more information for clip field
+                            [
+                                'resizable' => $file->isResizable(),
+                                'dimensions' => $file->dimensions()
+                            ]
+                        );
+                    });
+                }
+            ],
+
+            // clip field routes
+            [
+                // returns a clipped image preview
+                'pattern' => 'preview',
+                'method' => 'POST',
+                'action' => function () {
+                    $id = get('id');
+                    $clip = [
+                        'width' => (int) get('width'),
+                        'height' => (int) get('height'),
+                        'top' => (int) get('top'),
+                        'left' => (int) get('left')
+                    ];
+
+                    // from https://github.com/getkirby/kirby/blob/3.2.4/config/helpers.php#L251
+                    $uri      = dirname($id);
+                    $filename = basename($id);
+
+                    if ($uri === '.') {
+                        $uri = null;
+                    }
+
+                    switch ($uri) {
+                        case '/':
+                            $parent = site();
+                            break;
+                        case null:
+                            $parent = page();
+                            break;
+                        default:
+                            $site = site();
+                            if (!$parent = $site->page($uri)) {
+                                $parent = $site->draft($uri);
+                            }
+                            break;
+                    }
+
+                    if ($parent) {
+                        $file = new File([
+                            'filename' => $filename,
+                            'parent' => $parent
+                        ]);
+
+                        $file->setClip($clip);
+
+                        return [
+                            'image' => $file->panelImage($id),
+                        ];
+                    }
+                    else {
+                        throw new Exception("Clip: Could not find image parent.");
+                    }
+                }
+            ],
         ];
     },
+
     'save' => function ($value = null) {
         $result = [];
         foreach ($value as $item) {
