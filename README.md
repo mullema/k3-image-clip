@@ -9,7 +9,7 @@ Visual image clipping / cropping.
 - [Requirements](#Requirements)
 - [Consider a donation](#Consider-a-donation)
 - [Panel Usage](#Panel-usage)
-- [Replace Files Field](#Replace-Files-Field)
+- [Replace Files Field](#replace-files-field)
 - [Frontend Usage](#Frontend-usage)
    - [Single Image](#single-image)
    - [Multiple Images](#multiple-images)
@@ -73,7 +73,7 @@ The field does basic checks of image size and type but counts mainly on you defi
 query: site.find('photography').children.images.filterBy('template', 'cover')
 ```
 
-## Replace Filed Field
+## Replace Files Field
 The `image-clip` field is able to replace a `files` field by changing the field type. Simply replace
 ```yaml
 type: files
