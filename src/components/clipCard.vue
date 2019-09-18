@@ -48,14 +48,10 @@
 <script>
     export default {
         extends: 'k-card',
-        created() {
-          console.log(this.image)
-        },
         props: {
             id: String,
             resizable: Boolean,
             disabled: Boolean,
-            thumbnail: String
         },
         methods: {
             openClipDialog() {
