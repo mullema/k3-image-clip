@@ -71,7 +71,8 @@
                 cropprFacade: null,
                 dialog_width: null,
                 spinner: true,
-                freezeDialog: false
+                freezeDialog: false,
+                was_moved: false
             }
         },
         watch: {
@@ -98,6 +99,7 @@
                                     // prevent dialog from closing when dragging mouse outside image
                                     onCropStart: () => {
                                         this.freezeDialog = true;
+                                        this.was_moved = true;
                                     },
                                     onCropEnd: () => {
                                         setTimeout(() => {
@@ -135,10 +137,13 @@
                 return px * parseInt(getComputedStyle(document.documentElement).fontSize);
             },
             submit() {
-                this.$emit("submit", {
-                    id: this.image.id,
-                    clip: this.cropprFacade.getCropArea()
-                });
+                if (this.was_moved) {
+                    this.$emit("submit", {
+                        id: this.image.id,
+                        clip: this.cropprFacade.getCropArea()
+                    });
+                    this.was_moved = false;
+                }
                 this.close();
             },
             setDialogWidth() {
