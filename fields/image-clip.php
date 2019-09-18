@@ -47,15 +47,91 @@ return array_replace_recursive($base, [
             }
 
             return $files;
+        },
+        // Adapt filepicker https://github.com/getkirby/kirby/blob/80b69380e672565a849037232c9951d1e32774c8/config/fields/mixins/filepicker.php
+        'filepicker' => function (array $params = []) {
+            // fetch the parent model
+            $model = $this->model();
+            // find the right default query
+            if (empty($params['query']) === false) {
+                $query = $params['query'];
+            } elseif (is_a($model, 'Kirby\Cms\File') === true) {
+                $query = 'file.siblings';
+            } else {
+                $query = $model::CLASS_ALIAS . '.files';
+            }
+            // fetch all files for the picker
+            $files = $model->query($query, 'Kirby\Cms\Files');
+            $data  = [];
+            // prepare the response for each file
+            foreach ($files as $index => $file) {
+                if (empty($params['map']) === false) {
+                    $data[] = $params['map']($file);
+                } else {
+
+                    // adapt for clip field
+                    $data[] = array_merge(
+                        $file->panelPickerData([
+                            'image' => $params['image'] ?? [],
+                            'info'  => $params['info'] ?? false,
+                            'model' => $model,
+                            'text'  => $params['text'] ?? '{{ file.filename }}',
+                        ]),
+                        // append more information for clip field
+                        [
+                            'resizable' => $file->isResizable(),
+                            'dimensions' => $file->dimensions()
+                        ]);
+                }
+            }
+            return $data;
         }
     ],
 
-
     'api' => function () {
         return [
+            // native field routes
+            [
+                'pattern' => '/',
+                'action'  => function () {
+                    $field = $this->field();
+                    return $field->filepicker([
+                        'query' => $field->query(),
+                        'image' => $field->image(),
+                        'info'  => $field->info(),
+                        'text'  => $field->text()
+                    ]);
+                }
+            ],
+            [
+                'pattern' => 'upload',
+                'method'  => 'POST',
+                'action'  => function () {
+                    $field   = $this->field();
+                    $uploads = $field->uploads();
+                    return $field->upload($this, $uploads, function ($file) use ($field) {
+                        return array_merge(
+                            $file->panelPickerData([
+                                'image' => $field->image(),
+                                'info'  => $field->info(),
+                                'model' => $field->model(),
+                                'text'  => $field->text(),
+                            ]),
+                            // append more information for clip field
+                            [
+                                'resizable' => $file->isResizable(),
+                                'dimensions' => $file->dimensions()
+                            ]
+                        );
+                    });
+                }
+            ],
+
+            // clip field routes
             [
                 // returns a clipped image preview
-                'pattern' => '/preview',
+                'pattern' => 'preview',
+                'method' => 'POST',
                 'action' => function () {
                     $id = get('id');
                     $clip = [
@@ -95,17 +171,13 @@ return array_replace_recursive($base, [
 
                         return [
                             'image' => $file->panelImage($id),
-                            'resizable' => $file->isResizable(),
-                            'clip' => $clip,
-                            'dimensions' => $file->dimensions()
                         ];
-
                     }
                     else {
                         throw new Exception("Clip: Could not find image by id for preview.");
                     }
                 }
-            ]
+            ],
         ];
     },
 

@@ -120,17 +120,16 @@ export default {
         clippedArea(data) {
             this.clip_image.clip = data.clip;
             this.onInput();
-
             this.getPreview(data.id, data.clip);
-
-
-            // find id in this.selected
-            // post to api for new image data
-            console.log(this.selected);
         },
+        /**
+         * Loads a clipped preview
+         * @param id
+         * @param clip
+         */
         getPreview(id, clip) {
             this.$api
-                .get(this.endpoints.field + "/preview", {
+                .post(this.endpoints.field + "/preview", {
                     id: id,
                     width: clip.width,
                     height: clip.height,
@@ -143,12 +142,11 @@ export default {
                         updated_image.image = data.image;
                     }
                     else {
-                        this.error = data.message;
+                        throw new Error("image clip: no image for preview received.")
                     }
                 })
                 .catch(error => {
                     console.log(error);
-                    this.error = error.message;
                 });
         }
     }
