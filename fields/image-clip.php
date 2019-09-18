@@ -14,25 +14,18 @@ return array_replace_recursive($base, [
     'methods' => [
         'fileResponse' => function ($file, $clip = null) {
             // native response https://github.com/getkirby/kirby/blob/80b69380e672565a849037232c9951d1e32774c8/config/fields/files.php#L69
-            if (!$clip) {
-                return $file->panelPickerData([
-                    'image' => $this->image,
-                    'info'  => $this->info ?? false,
-                    'model' => $this->model(),
-                    'text'  => $this->text,
+            if ($clip) {
+                // with clip data create new mullema\File object with adjusted srcset method
+                $file = new File([
+                    'filename' => $file->filename(),
+                    'parent' => $file->parent()
                 ]);
+
+                $file->setClip($clip);
             }
 
-            // with clip data create new mullema\File object with adjusted srcset method
-            $clipfile = new File([
-                'filename' => $file->filename(),
-                'parent' => $file->parent()
-            ]);
-
-            $clipfile->setClip($clip);
-
             return array_merge(
-                $clipfile->panelPickerData([
+                $file->panelPickerData([
                     'image' => $this->image,
                     'info'  => $this->info ?? false,
                     'model' => $this->model(),
@@ -40,9 +33,9 @@ return array_replace_recursive($base, [
                 ]),
                 // append more information for clip field
                 [
-                    'resizable' => $clipfile->isResizable(),
+                    'resizable' => $file->isResizable(),
                     'clip' => $clip,
-                    'dimensions' => $clipfile->dimensions()
+                    'dimensions' => $file->dimensions()
                 ]);
         },
         'toFiles' => function ($value = null) {
