@@ -47,7 +47,6 @@
                     :id="file.id"
                     :resizable="file.resizable"
                     :disabled="file.disabled"
-                    :thumbnail="file.thumbnail"
                     @openclipdialog="openClipDialog"
                 >
                     <k-button
@@ -121,7 +120,36 @@ export default {
         clippedArea(data) {
             this.clip_image.clip = data.clip;
             this.onInput();
-            this.$emit('submit');
+
+            this.getPreview(data.id, data.clip);
+
+
+            // find id in this.selected
+            // post to api for new image data
+            console.log(this.selected);
+        },
+        getPreview(id, clip) {
+            this.$api
+                .get(this.endpoints.field + "/preview", {
+                    id: id,
+                    width: clip.width,
+                    height: clip.height,
+                    top: clip.top,
+                    left: clip.left
+                })
+                .then(data => {
+                    if (data.image) {
+                        let updated_image = this.selected.find(image => image.id === id);
+                        updated_image.image = data.image;
+                    }
+                    else {
+                        this.error = data.message;
+                    }
+                })
+                .catch(error => {
+                    console.log(error);
+                    this.error = error.message;
+                });
         }
     }
 }

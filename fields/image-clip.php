@@ -13,7 +13,6 @@ return array_replace_recursive($base, [
     ],
     'methods' => [
         'fileResponse' => function ($file, $clip = null) {
-            // native response https://github.com/getkirby/kirby/blob/80b69380e672565a849037232c9951d1e32774c8/config/fields/files.php#L69
             if ($clip) {
                 // with clip data create new mullema\File object with adjusted srcset method
                 $file = new File([
@@ -51,34 +50,64 @@ return array_replace_recursive($base, [
         }
     ],
 
-    /*
+
     'api' => function () {
         return [
             [
-                'pattern' => '/',
+                // returns a clipped image preview
+                'pattern' => '/preview',
                 'action' => function () {
-                    $field = $this->field();
-                    $files = $field->model()->query($field->query(), 'Kirby\Cms\Files');
-                    $data  = [];
-                    $saved = $field->value();
+                    $id = get('id');
+                    $clip = [
+                        'width' => (int) get('width'),
+                        'height' => (int) get('height'),
+                        'top' => (int) get('top'),
+                        'left' => (int) get('left')
+                    ];
 
-                    foreach ($files as $index => $file) {
-                        // https://www.php.net/manual/de/function.array-search.php#116635
-                        $key = array_search((string) $file->id(), array_column($saved, 'id'));
-                        if ($key !== false) {
-                            // get from saved to preserve clip information
-                            $data[] = $saved[$key];
-                        }
-                        else {
-                            $data[] = $field->fileResponse($file);
-                        }
+                    // from https://github.com/getkirby/kirby/blob/3.2.4/config/helpers.php#L251
+                    $uri      = dirname($id);
+                    $filename = basename($id);
+
+                    if ($uri === '.') {
+                        $uri = null;
                     }
-                    return $data;
+
+                    switch ($uri) {
+                        case '/':
+                            $parent = site();
+                            break;
+                        case null:
+                            $parent = page();
+                            break;
+                        default:
+                            $parent = page($uri);
+                            break;
+                    }
+
+                    if ($parent) {
+                        $file = new File([
+                            'filename' => $filename,
+                            'parent' => $parent
+                        ]);
+
+                        $file->setClip($clip);
+
+                        return [
+                            'image' => $file->panelImage($id),
+                            'resizable' => $file->isResizable(),
+                            'clip' => $clip,
+                            'dimensions' => $file->dimensions()
+                        ];
+
+                    }
+                    else {
+                        throw new Exception("Clip: Could not find image by id for preview.");
+                    }
                 }
             ]
         ];
     },
-    */
 
     'save' => function ($value = null) {
         $result = [];
