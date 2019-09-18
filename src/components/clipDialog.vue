@@ -68,9 +68,10 @@
         },
         data() {
             return {
-                cropprInstance: null,
+                cropprFacade: null,
                 dialog_width: null,
-                spinner: true
+                spinner: true,
+                freezeDialog: false
             }
         },
         watch: {
@@ -88,17 +89,27 @@
                         }
 
                         try {
-                            this.cropprInstance = new Croppr({
+                            this.cropprFacade = new Croppr({
                                 el: el,
                                 original_dimensions: this.image.dimensions,
                                 clip: this.clip,
-                                saved: this.image.clip
+                                saved: this.image.clip,
+                                events: {
+                                    // prevent dialog from closing when dragging mouse outside image
+                                    onCropStart: () => {
+                                        this.freezeDialog = true;
+                                    },
+                                    onCropEnd: () => {
+                                        setTimeout(() => {
+                                            this.freezeDialog = false;
+                                        }, 200);
+                                    }
+                                }
                             });
 
                             // on window resize show spinner and reset Croppr Instance
                             window.addEventListener("resize", this.showSpinner, false);
                             window.addEventListener("resize", this.resizeDialog, false);
-
                         }
                         catch(error) {
                             this.cancel();
@@ -114,13 +125,19 @@
             }
         },
         methods: {
+            cancel() {
+                // to prevent closing the dialog, when draging the mouse outside image
+                if (this.freezeDialog) return;
+                this.$emit("cancel");
+                this.close();
+            },
             remToPx(px = 1) {
                 return px * parseInt(getComputedStyle(document.documentElement).fontSize);
             },
             submit() {
                 this.$emit("submit", {
                     id: this.image.id,
-                    clip: this.cropprInstance.getCropArea()
+                    clip: this.cropprFacade.getCropArea()
                 });
                 this.close();
             },
@@ -144,8 +161,8 @@
             },
             resizeDialog: debounce(function() {
                 this.setDialogWidth();
-                let last_known = this.cropprInstance.getCropArea();
-                this.cropprInstance.reset({position: last_known});
+                let last_known = this.cropprFacade.getCropArea();
+                this.cropprFacade.reset({position: last_known});
                 this.spinner = false;
             }, 500),
             hideSpinner: function() {
