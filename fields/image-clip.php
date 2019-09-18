@@ -157,7 +157,10 @@ return array_replace_recursive($base, [
                             $parent = page();
                             break;
                         default:
-                            $parent = page($uri);
+                            $site = site();
+                            if (!$parent = $site->page($uri)) {
+                                $parent = $site->draft($uri);
+                            }
                             break;
                     }
 
@@ -174,7 +177,7 @@ return array_replace_recursive($base, [
                         ];
                     }
                     else {
-                        throw new Exception("Clip: Could not find image by id for preview.");
+                        throw new Exception("Clip: Could not find image parent.");
                     }
                 }
             ],
