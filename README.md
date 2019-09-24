@@ -83,6 +83,8 @@ with
 type: image-clip
 ```
 
+*This works also vice versa to use the native `files` field instead of the `image-clip` field.*
+
 ## Frontend Usage
 How to fetch the images defined in a `image-clip` field.
 Read about the `clip()` method a bit further down.
