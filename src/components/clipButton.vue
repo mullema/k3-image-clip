@@ -1,7 +1,7 @@
 <template>
-  <button class="k-button clip" aria-hidden="true">
-    <img @click="open" src="../../assets/clip.png" alt="Clip" class="clipicon" />
-  </button>
+  <span class="k-button clip" aria-hidden="true">
+    <img @click="open"  src="../../assets/clip.png" alt="Clip" class="clipicon" />
+  </span>
 </template>`
 
 <script>
@@ -18,7 +18,7 @@
 <style scoped>
     .clip {
         cursor: pointer;
-        padding: 0 5px;
+        padding: 5px;
     }
 
     .clip:hover {

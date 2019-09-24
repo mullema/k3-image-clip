@@ -14,40 +14,36 @@ use Kirby\Image\Darkroom;
  * @return Kirby\Cms\File|Kirby\Cms\FileVersion
  */
 return function (App $kirby, $file, array $options = []) {
-    if (isset($options['clip'])) {
-        if ($file->isResizable() === false) {
-            return $file;
-        }
-
-        // pre-calculate all thumb attributes
-        $darkroom   = Darkroom::factory(option('thumbs.driver', 'gd'), option('thumbs', []));
-        $attributes = $darkroom->preprocess($file->root(), $options);
-
-        // create url and root
-        $mediaRoot = dirname($file->mediaRoot());
-        $dst       = $mediaRoot . '/{{ name }}{{ attributes }}.{{ extension }}';
-        $thumbRoot = (new mullema\Filename($file->root(), $dst, $attributes))->toString();
-        $thumbName = basename($thumbRoot);
-        $job       = $mediaRoot . '/.jobs/' . $thumbName . '.json';
-
-        if (file_exists($thumbRoot) === false) {
-            try {
-                Data::write($job, array_merge($attributes, [
-                    'filename' => $file->filename()
-                ]));
-            } catch (Throwable $e) {
-                return $file;
-            }
-        }
-
-        return new FileVersion([
-            'modifications' => $options,
-            'original'      => $file,
-            'root'          => $thumbRoot,
-            'url'           => dirname($file->mediaUrl()) . '/' . $thumbName,
-        ]);
+    if(!isset($options['clip'])) {
+        $core = require $kirby->root('kirby') . DIRECTORY_SEPARATOR . 'config' . DIRECTORY_SEPARATOR . 'components.php';
+        return $core['file::version']($kirby, $file, $options);
     }
 
-    $core = require $kirby->root('kirby') . DIRECTORY_SEPARATOR . 'config' . DIRECTORY_SEPARATOR . 'components.php';
-    return $core['file::version']($kirby, $file, $options);
+    if ($file->isResizable() === false) {
+        return $file;
+    }
+
+    // create url and root
+    $mediaRoot = dirname($file->mediaRoot());
+    $dst       = $mediaRoot . '/{{ name }}{{ attributes }}.{{ extension }}';
+    $thumbRoot = (new mullema\Filename($file->root(), $dst, $options))->toString();
+    $thumbName = basename($thumbRoot);
+    $job       = $mediaRoot . '/.jobs/' . $thumbName . '.json';
+
+    if (file_exists($thumbRoot) === false) {
+        try {
+            Data::write($job, array_merge($options, [
+                'filename' => $file->filename()
+            ]));
+        } catch (Throwable $e) {
+            return $file;
+        }
+    }
+
+    return new FileVersion([
+        'modifications' => $options,
+        'original'      => $file,
+        'root'          => $thumbRoot,
+        'url'           => dirname($file->mediaUrl()) . '/' . $thumbName,
+    ]);
 };

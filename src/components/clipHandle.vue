@@ -1,8 +1,8 @@
 <template>
-      <span class="k-sort-handle clip" aria-hidden="true">
-        <img @click="open" src="../../assets/clip.png" alt="Clip" class="clipicon" />
-      </span>
-</template>`
+  <span class="k-sort-handle clip" aria-hidden="true">
+    <img @click="open" src="../../assets/clip.png" alt="Clip" class="clipicon" />
+  </span>
+</template>
 
 <script>
     export default {

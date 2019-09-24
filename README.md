@@ -9,6 +9,7 @@ Visual image clipping / cropping.
 - [Requirements](#Requirements)
 - [Consider a donation](#Consider-a-donation)
 - [Panel Usage](#Panel-usage)
+- [Replace Files Field](#replace-files-field)
 - [Frontend Usage](#Frontend-usage)
    - [Single Image](#single-image)
    - [Multiple Images](#multiple-images)
@@ -34,7 +35,7 @@ composer require mullema/k3-image-clip
 ```
 
 ### Requirements
-- Kirby 3.x
+- Kirby 3.2.5
 - GD Library or ImageMagick
 
 ## Consider a donation
@@ -72,27 +73,17 @@ The field does basic checks of image size and type but counts mainly on you defi
 query: site.find('photography').children.images.filterBy('template', 'cover')
 ```
 
-### Panel thumb size
-In kirbys config.php you can adjust the maximal thumbnail sizes that are displayed in the `image-clip` field.
-Default is 400px width or 400px height for cards and 100px width or 100px height for lists. 
-
-If your cards get bigger you might want to adjust the numbers to 800x800px.
-
-__Note__: This is only about thumbnail quality in the panel. You don't need to match the clip area numbers.
-```php
-    'options' => [
-        'panelthumbs' => [
-            'cards' => [
-                'width'  => 400,
-                'height' => 400
-            ],
-            'list' => [
-                'width'  => 100,
-                'height' => 100
-            ]
-        ]
-    ]
+## Replace Files Field
+The `image-clip` field is able to replace a `files` field by changing the field type. Simply replace
+```yaml
+type: files
 ```
+with
+```yaml
+type: image-clip
+```
+
+*This works also vice versa to use the native `files` field instead of the `image-clip` field.*
 
 ## Frontend Usage
 How to fetch the images defined in a `image-clip` field.
