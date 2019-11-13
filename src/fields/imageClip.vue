@@ -27,58 +27,59 @@
 
         <template v-if="selected.length">
             <k-draggable
-                :element="elements.list"
-                :list="selected"
-                :data-size="size"
-                :handle="true"
-                @end="onInput"
+                    :element="elements.list"
+                    :list="selected"
+                    :data-size="size"
+                    :handle="true"
+                    :data-invalid="isInvalid"
+                    @end="onInput"
             >
                 <component
-                    v-for="(file, index) in selected"
-                    :is="elements.item"
-                    :key="file.filename"
-                    :sortable="!disabled && selected.length > 1"
-                    :text="file.text"
-                    :link="file.link"
-                    :info="file.info"
-                    :image="file.image"
-                    :icon="file.icon"
+                        v-for="(file, index) in selected"
+                        :is="elements.item"
+                        :key="file.filename"
+                        :sortable="!disabled && selected.length > 1"
+                        :text="file.text"
+                        :link="file.link"
+                        :info="file.info"
+                        :image="file.image"
+                        :icon="file.icon"
 
-                    :id="file.id"
-                    :resizable="file.resizable"
-                    :disabled="file.disabled"
-                    @openclipdialog="openClipDialog"
+                        :id="file.id"
+                        :resizable="file.resizable"
+                        :disabled="file.disabled"
+                        @openclipdialog="openClipDialog"
                 >
                     <k-button
-                        v-if="!disabled"
-                        slot="options"
-                        :tooltip="$t('remove')"
-                        icon="remove"
-                        @click="remove(index)"
+                            v-if="!disabled"
+                            slot="options"
+                            :tooltip="$t('remove')"
+                            icon="remove"
+                            @click="remove(index)"
                     />
                 </component>
             </k-draggable>
         </template>
         <k-empty
-            v-else
-            :layout="layout"
-            icon="image"
-            @click="open"
+                v-else
+                :layout="layout"
+                icon="image"
+                :data-invalid="isInvalid"
+                @click="open"
         >
             {{ empty || $t('field.files.empty') }}
         </k-empty>
         <k-files-dialog ref="selector" @submit="select" />
         <k-upload ref="fileUpload" @success="selectUpload" />
         <k-clip-dialog
-            ref="clip"
-            size="large"
-            :image="clip_image"
-            :clip="clip"
-            @submit="clippedArea"
+                ref="clip"
+                size="large"
+                :image="clip_image"
+                :clip="clip"
+                @submit="clippedArea"
         />
     </k-field>
 </template>
-
 
 <script>
 export default {

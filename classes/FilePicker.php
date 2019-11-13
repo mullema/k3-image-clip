@@ -10,7 +10,10 @@ class FilePicker extends CMS\FilePicker
     /**
      * Overwrite https://github.com/getkirby/kirby/blob/master/src/Cms/Picker.php#L89
      *
+     * Adds clip field specific properties
+     *
      * @param \Kirby\Cms\Collection|null $items
+     * @return array
      */
     public function itemsToArray($items = null): array
     {
@@ -38,5 +41,4 @@ class FilePicker extends CMS\FilePicker
         }
         return $result;
     }
-
 }
