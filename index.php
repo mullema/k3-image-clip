@@ -5,6 +5,7 @@ load([
     'mullema\\Filename' => 'classes/Filename.php',
     'mullema\\GdLib' => 'classes/GdLib.php',
     'mullema\\Imagemagick' => 'classes/ImageMagick.php',
+    'mullema\\FilePicker' => 'classes/FilePicker.php'
 ], __DIR__);
 
 Kirby::plugin('mullema/k3-image-clip', [

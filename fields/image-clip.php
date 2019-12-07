@@ -2,6 +2,7 @@
 
 use Kirby\Data\Yaml;
 use mullema\File;
+use mullema\FilePicker;
 
 $base = require kirby()->root('kirby') . DIRECTORY_SEPARATOR . 'config' . DIRECTORY_SEPARATOR . 'fields' . DIRECTORY_SEPARATOR . 'files.php';
 
@@ -60,43 +61,15 @@ return array_replace_recursive($base, [
 
             return $files;
         },
-        // Adapt filepicker https://github.com/getkirby/kirby/blob/80b69380e672565a849037232c9951d1e32774c8/config/fields/mixins/filepicker.php
-        'filepicker' => function (array $params = []) {
-            // fetch the parent model
-            $model = $this->model();
-            // find the right default query
-            if (empty($params['query']) === false) {
-                $query = $params['query'];
-            } elseif (is_a($model, 'Kirby\Cms\File') === true) {
-                $query = 'file.siblings';
-            } else {
-                $query = $model::CLASS_ALIAS . '.files';
-            }
-            // fetch all files for the picker
-            $files = $model->query($query, 'Kirby\Cms\Files');
-            $data  = [];
-            // prepare the response for each file
-            foreach ($files as $index => $file) {
-                if (empty($params['map']) === false) {
-                    $data[] = $params['map']($file);
-                } else {
 
-                    // adapt for clip field
-                    $data[] = array_merge(
-                        $file->panelPickerData([
-                            'image' => $params['image'] ?? [],
-                            'info'  => $params['info'] ?? false,
-                            'model' => $model,
-                            'text'  => $params['text'] ?? '{{ file.filename }}',
-                        ]),
-                        // append more information for clip field
-                        [
-                            'resizable' => $file->isResizable(),
-                            'dimensions' => $file->dimensions()
-                        ]);
-                }
-            }
-            return $data;
+        /**
+         * Overwrite the filepicker mixin https://github.com/getkirby/kirby/blob/master/config/fields/mixins/filepicker.php
+         * use own FilePicker class
+         */
+        // Overwrite filepicker mixin
+        'filepicker' => function (array $params = []) {
+            $params['model'] = $this->model();
+            return (new FilePicker($params))->toArray();
         }
     ],
 
@@ -109,10 +82,13 @@ return array_replace_recursive($base, [
                     $field = $this->field();
 
                     return $field->filepicker([
-                        'query' => $field->query(),
-                        'image' => $field->image(),
-                        'info'  => $field->info(),
-                        'text'  => $field->text()
+                        'image'  => $field->image(),
+                        'info'   => $field->info(),
+                        'limit'  => $field->limit(),
+                        'page'   => $this->requestQuery('page'),
+                        'query'  => $field->query(),
+                        'search' => $this->requestQuery('search'),
+                        'text'   => $field->text()
                     ]);
                 }
             ],

@@ -27,58 +27,59 @@
 
         <template v-if="selected.length">
             <k-draggable
-                :element="elements.list"
-                :list="selected"
-                :data-size="size"
-                :handle="true"
-                @end="onInput"
+                    :element="elements.list"
+                    :list="selected"
+                    :data-size="size"
+                    :handle="true"
+                    :data-invalid="isInvalid"
+                    @end="onInput"
             >
                 <component
-                    v-for="(file, index) in selected"
-                    :is="elements.item"
-                    :key="file.filename"
-                    :sortable="!disabled && selected.length > 1"
-                    :text="file.text"
-                    :link="file.link"
-                    :info="file.info"
-                    :image="file.image"
-                    :icon="file.icon"
+                        v-for="(file, index) in selected"
+                        :is="elements.item"
+                        :key="file.filename"
+                        :sortable="!disabled && selected.length > 1"
+                        :text="file.text"
+                        :link="file.link"
+                        :info="file.info"
+                        :image="file.image"
+                        :icon="file.icon"
 
-                    :id="file.id"
-                    :resizable="file.resizable"
-                    :disabled="file.disabled"
-                    @openclipdialog="openClipDialog"
+                        :id="file.id"
+                        :resizable="file.resizable"
+                        :disabled="file.disabled"
+                        @openclipdialog="openClipDialog"
                 >
                     <k-button
-                        v-if="!disabled"
-                        slot="options"
-                        :tooltip="$t('remove')"
-                        icon="remove"
-                        @click="remove(index)"
+                            v-if="!disabled"
+                            slot="options"
+                            :tooltip="$t('remove')"
+                            icon="remove"
+                            @click="remove(index)"
                     />
                 </component>
             </k-draggable>
         </template>
         <k-empty
-            v-else
-            :layout="layout"
-            icon="image"
-            @click="open"
+                v-else
+                :layout="layout"
+                icon="image"
+                :data-invalid="isInvalid"
+                @click="open"
         >
             {{ empty || $t('field.files.empty') }}
         </k-empty>
         <k-files-dialog ref="selector" @submit="select" />
         <k-upload ref="fileUpload" @success="selectUpload" />
         <k-clip-dialog
-            ref="clip"
-            size="large"
-            :image="clip_image"
-            :clip="clip"
-            @submit="clippedArea"
+                ref="clip"
+                size="large"
+                :image="clip_image"
+                :clip="clip"
+                @submit="clippedArea"
         />
     </k-field>
 </template>
-
 
 <script>
 export default {
@@ -124,13 +125,13 @@ export default {
         },
         /**
          * Loads a clipped preview
-         * @param id
+         * @param image_id
          * @param clip
          */
-        getPreview(id, clip) {
+        getPreview(image_id, clip) {
             this.$api
                 .post(this.endpoints.field + "/preview", {
-                    id: id,
+                    id: image_id,
                     width: clip.width,
                     height: clip.height,
                     top: clip.top,
@@ -138,8 +139,24 @@ export default {
                 })
                 .then(data => {
                     if (data.image) {
-                        let updated_image = this.selected.find(image => image.id === id);
-                        updated_image.image = data.image;
+                        let field_name = this.name;
+                        let content_id = this.$store.state.content.current;
+                        let field_model = this.$store.getters["content/values"](content_id)[field_name];
+
+                        // regular field
+                        // update vuex store with new thumbnail urls
+                        if (field_model) {
+                            let changed_image = field_model.find(image => image.id === image_id);
+                            // new preview image to image model
+                            changed_image.image = data.image;
+                            this.$store.dispatch("content/update", [field_name, field_model, content_id])
+                        }
+                        // field inside a structure field
+                        // store gets automatically updated when OK clicked
+                        else {
+                            let updated_image = this.selected.find(image => image.id === image_id);
+                            updated_image.image = data.image;
+                        }
                     }
                     else {
                         throw new Error("image clip: no image for preview received.")

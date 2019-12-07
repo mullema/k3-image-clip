@@ -35,7 +35,8 @@ composer require mullema/k3-image-clip
 ```
 
 ### Requirements
-- Kirby 3.2.5
+- Kirby 3.3 -> use v2.1.0
+- Kirby 3.2.5 -> use v2.0.0
 - GD Library or ImageMagick
 
 ## Consider a donation
