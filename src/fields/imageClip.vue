@@ -125,13 +125,13 @@ export default {
         },
         /**
          * Loads a clipped preview
-         * @param id
+         * @param image_id
          * @param clip
          */
-        getPreview(id, clip) {
+        getPreview(image_id, clip) {
             this.$api
                 .post(this.endpoints.field + "/preview", {
-                    id: id,
+                    id: image_id,
                     width: clip.width,
                     height: clip.height,
                     top: clip.top,
@@ -139,8 +139,18 @@ export default {
                 })
                 .then(data => {
                     if (data.image) {
-                        let updated_image = this.selected.find(image => image.id === id);
-                        updated_image.image = data.image;
+                        // update vuex store with new thumbnail urls
+                        let field_name = this.name;
+                        let content_id = this.$store.state.content.current;
+                        let field_model = this.$store.getters["content/values"](content_id)[field_name];
+
+                        // regular field
+                        if (field_model) {
+                            let changed_image = field_model.find(image => image.id === image_id);
+                            // new preview image to image model
+                            changed_image.image = data.image;
+                            this.$store.dispatch("content/update", [field_name, field_model, content_id])
+                        }
                     }
                     else {
                         throw new Error("image clip: no image for preview received.")
