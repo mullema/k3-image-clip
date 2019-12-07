@@ -139,17 +139,23 @@ export default {
                 })
                 .then(data => {
                     if (data.image) {
-                        // update vuex store with new thumbnail urls
                         let field_name = this.name;
                         let content_id = this.$store.state.content.current;
                         let field_model = this.$store.getters["content/values"](content_id)[field_name];
 
                         // regular field
+                        // update vuex store with new thumbnail urls
                         if (field_model) {
                             let changed_image = field_model.find(image => image.id === image_id);
                             // new preview image to image model
                             changed_image.image = data.image;
                             this.$store.dispatch("content/update", [field_name, field_model, content_id])
+                        }
+                        // field inside a structure field
+                        // store gets automatically updated when OK clicked
+                        else {
+                            let updated_image = this.selected.find(image => image.id === image_id);
+                            updated_image.image = data.image;
                         }
                     }
                     else {
