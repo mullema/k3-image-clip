@@ -163,7 +163,7 @@ return array_replace_recursive($base, [
                         $file->setClip($clip);
 
                         return [
-                            'image' => $file->panelImage($id),
+                            'image' => $file->panelImage(),
                         ];
                     }
                     else {
