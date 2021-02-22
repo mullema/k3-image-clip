@@ -139,19 +139,18 @@ return array_replace_recursive($base, [
                         $uri = null;
                     }
 
-                    switch ($uri) {
-                        case '/':
+                    // if no uri, find out whether the file is from Site or Home Page
+                    if (!$uri) {
+                        if ($this->data()['field']->model() instanceof Kirby\Cms\Site) {
                             $parent = site();
-                            break;
-                        case null:
-                            $parent = page();
-                            break;
-                        default:
-                            $site = site();
-                            if (!$parent = $site->page($uri)) {
-                                $parent = $site->draft($uri);
-                            }
-                            break;
+                        } else {
+                            $parent = page(); // home
+                        }
+                    } else {
+                        $site = site();
+                        if (!$parent = $site->page($uri)) {
+                            $parent = $site->draft($uri);
+                        }
                     }
 
                     if ($parent) {
