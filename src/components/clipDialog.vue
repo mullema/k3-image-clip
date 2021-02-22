@@ -91,9 +91,11 @@ export default {
   },
   created () {
     this.$on('ready', this.isOpen, false)
+    this.$on('close', this.isClosed, false)
   },
   destroyed () {
-    this.$off('ready', this.isClosed, false)
+    this.$off('ready', this.isOpen, false)
+    this.$off('close', this.isClosed, false)
   },
   methods: {
     isOpen () {
