@@ -1,21 +1,18 @@
 {
   "name": "k3-image-clip",
-  "version": "1.0.0",
+  "version": "3.0.0",
   "description": "Visual image clip for Kirby3.",
   "author": "Matthias Müller <moeli@moeli.com>",
   "license": "MIT",
   "main": "index.js",
   "scripts": {
-    "dev": "bili --watch",
-    "build": "bili"
-  },
-  "devDependencies": {
-    "bili": "^4.8.1",
-    "rollup-plugin-img": "^1.1.0",
-    "rollup-plugin-vue": "^5.0.1",
-    "vue-template-compiler": "^2.6.10"
+    "dev": "kirbyup src/main.js --watch",
+    "build": "kirbyup src/main.js"
   },
   "dependencies": {
     "croppr": "github:mullema/Croppr.js"
+  },
+  "devDependencies": {
+    "kirbyup": "^0.16.0"
   }
 }
