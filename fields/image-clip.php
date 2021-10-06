@@ -84,6 +84,7 @@ return array_replace_recursive($base, [
                     return $field->filepicker([
                         'image' => $field->image([], $field->layout),
                         'info' => $field->info(),
+                        'layout' => $field->layout(),
                         'limit' => $field->limit(),
                         'page' => $this->requestQuery('page'),
                         'query' => $field->query(),

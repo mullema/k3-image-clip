@@ -22,13 +22,15 @@ class FilePicker extends CMS\FilePicker
         }
         $result = [];
         foreach ($items as $index => $item) {
+
             if (empty($this->options['map']) === false) {
                 $result[] = $this->options['map']($item);
             } else {
                 $result[] = array_merge(
-                    $item->panelPickerData([
+                    $item->panel()->pickerData([ // $item->panelPickerData
                         'image' => $this->options['image'],
                         'info'  => $this->options['info'],
+                        'layout' => $this->options['layout'],
                         'model' => $this->options['model'],
                         'text'  => $this->options['text'],
                     ]),
