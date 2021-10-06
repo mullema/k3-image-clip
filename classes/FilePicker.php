@@ -27,7 +27,7 @@ class FilePicker extends CMS\FilePicker
                 $result[] = $this->options['map']($item);
             } else {
                 $result[] = array_merge(
-                    $item->panel()->pickerData([ // $item->panelPickerData
+                    $item->panel()->pickerData([
                         'image' => $this->options['image'],
                         'info'  => $this->options['info'],
                         'layout' => $this->options['layout'],

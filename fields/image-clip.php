@@ -82,7 +82,7 @@ return array_replace_recursive($base, [
                     $field = $this->field();
 
                     return $field->filepicker([
-                        'image' => $field->image([], $field->layout),
+                        'image' => $field->image(),
                         'info' => $field->info(),
                         'layout' => $field->layout(),
                         'limit' => $field->limit(),
@@ -103,7 +103,7 @@ return array_replace_recursive($base, [
                     return $field->upload($this, $uploads, function ($file, $parent) use ($field) {
                         return array_merge(
                             $file->panel()->pickerData([
-                                'image' => $field->image([], $field->layout),
+                                'image' => $field->image(),
                                 'info' => $field->info(),
                                 'layout' => $field->layout(),
                                 'model' => $field->model(),
