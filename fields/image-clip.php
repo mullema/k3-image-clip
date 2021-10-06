@@ -104,6 +104,7 @@ return array_replace_recursive($base, [
                             $file->panel()->pickerData([
                                 'image' => $field->image([], $field->layout),
                                 'info' => $field->info(),
+                                'layout' => $field->layout(),
                                 'model' => $field->model(),
                                 'text' => $field->text(),
                             ]),
