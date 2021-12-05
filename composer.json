@@ -1,15 +1,19 @@
 {
   "name": "mullema/k3-image-clip",
-  "description": "Visual image clip for Kirby3.",
+  "description": "Visual image clip for Kirby 3",
   "type": "kirby-plugin",
   "license": "MIT",
   "authors": [
     {
       "name": "Matthias Müller",
-      "email": "moeli@moeli.com"
+      "email": "moeli@moeli.com",
+      "homepage": "https://getkirby.com/plugins/mullema"
     }
   ],
   "require": {
-    "getkirby/composer-installer": "^1.1"
+    "getkirby/composer-installer": "^1.2"
+  },
+  "extra": {
+    "installer-name": "k3-image-clip"
   }
 }
