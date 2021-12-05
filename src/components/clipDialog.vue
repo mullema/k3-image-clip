@@ -3,6 +3,7 @@
       ref="overlay"
       :autofocus="autofocus"
       :centered="true"
+      @close="onOverlayClose"
       @ready="$emit('ready')"
   >
     <div
@@ -90,12 +91,12 @@ export default {
     }
   },
   created () {
-    this.$on('ready', this.isOpen, false)
-    this.$on('close', this.isClosed, false)
+    this.$on('ready', this.isOpen)
+    this.$on('close', this.isClosed)
   },
-  destroyed () {
-    this.$off('ready', this.isOpen, false)
-    this.$off('close', this.isClosed, false)
+  beforeDestroy () {
+    this.$off('ready', this.isOpen)
+    this.$off('close', this.isClosed)
   },
   methods: {
     isOpen () {
