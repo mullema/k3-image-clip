@@ -1,6 +1,6 @@
 <?php
 
-use Kirby\Data\Yaml;
+use Kirby\Data\Data;
 use mullema\File;
 use mullema\FilePicker;
 
@@ -9,7 +9,7 @@ $base = require kirby()->root('kirby') . DIRECTORY_SEPARATOR . 'config' . DIRECT
 return array_replace_recursive($base, [
     'props' => [
         'clip' => function ($clip = []) {
-            return Yaml::decode($clip);
+            return Data::decode($clip, 'yaml');
         }
     ],
     'methods' => [
@@ -25,11 +25,12 @@ return array_replace_recursive($base, [
             }
 
             return array_merge(
-                $file->panelPickerData([
+                $file->panel()->pickerData([
                     'image' => $this->image,
-                    'info'  => $this->info ?? false,
+                    'info' => $this->info ?? false,
+                    'layout' => $this->layout,
                     'model' => $this->model(),
-                    'text'  => $this->text,
+                    'text' => $this->text,
                 ]),
                 // append more information for clip field
                 [
@@ -40,23 +41,22 @@ return array_replace_recursive($base, [
         },
         'toFiles' => function ($value = null) {
             $files = [];
-                foreach (Yaml::decode($value) as $item) {
+            foreach (Data::decode($value, 'yaml') as $item) {
 
-                    // read from native files field
-                    if (!is_array($item)) {
-                        $id = $item;
-                        $clip = null;
-                    }
-                    // read image-clip field
-                    else {
-                        $id = $item['id'];
-                        $clip = $item['clip'] ?? null;
-                    }
+                // read from native files field
+                if (!is_array($item)) {
+                    $id = $item;
+                    $clip = null;
+                } // read image-clip field
+                else {
+                    $id = $item['id'];
+                    $clip = $item['clip'] ?? null;
+                }
 
-                    if ($id !== null && ($file = $this->kirby()->file($id, $this->model()))) {
-                        // add clip as parameter to fileResponse call
-                        $files[] = $this->fileResponse($file, $clip);
-                    }
+                if ($id !== null && ($file = $this->kirby()->file($id, $this->model()))) {
+                    // add clip as parameter to fileResponse call
+                    $files[] = $this->fileResponse($file, $clip);
+                }
             }
 
             return $files;
@@ -78,34 +78,36 @@ return array_replace_recursive($base, [
             // native field routes
             [
                 'pattern' => '/',
-                'action'  => function () {
+                'action' => function () {
                     $field = $this->field();
 
                     return $field->filepicker([
-                        'image'  => $field->image(),
-                        'info'   => $field->info(),
-                        'limit'  => $field->limit(),
-                        'page'   => $this->requestQuery('page'),
-                        'query'  => $field->query(),
+                        'image' => $field->image(),
+                        'info' => $field->info(),
+                        'layout' => $field->layout(),
+                        'limit' => $field->limit(),
+                        'page' => $this->requestQuery('page'),
+                        'query' => $field->query(),
                         'search' => $this->requestQuery('search'),
-                        'text'   => $field->text()
+                        'text' => $field->text()
                     ]);
                 }
             ],
             [
                 'pattern' => 'upload',
-                'method'  => 'POST',
-                'action'  => function () {
-                    $field   = $this->field();
+                'method' => 'POST',
+                'action' => function () {
+                    $field = $this->field();
                     $uploads = $field->uploads();
 
                     return $field->upload($this, $uploads, function ($file, $parent) use ($field) {
                         return array_merge(
-                            $file->panelPickerData([
+                            $file->panel()->pickerData([
                                 'image' => $field->image(),
-                                'info'  => $field->info(),
+                                'info' => $field->info(),
+                                'layout' => $field->layout(),
                                 'model' => $field->model(),
-                                'text'  => $field->text(),
+                                'text' => $field->text(),
                             ]),
                             // append more information for clip field
                             [
@@ -125,14 +127,14 @@ return array_replace_recursive($base, [
                 'action' => function () {
                     $id = get('id');
                     $clip = [
-                        'width' => (int) get('width'),
-                        'height' => (int) get('height'),
-                        'top' => (int) get('top'),
-                        'left' => (int) get('left')
+                        'width' => (int)get('width'),
+                        'height' => (int)get('height'),
+                        'top' => (int)get('top'),
+                        'left' => (int)get('left')
                     ];
 
                     // from https://github.com/getkirby/kirby/blob/3.2.4/config/helpers.php#L251
-                    $uri      = dirname($id);
+                    $uri = dirname($id);
                     $filename = basename($id);
 
                     if ($uri === '.') {
@@ -162,10 +164,9 @@ return array_replace_recursive($base, [
                         $file->setClip($clip);
 
                         return [
-                            'image' => $file->panelImage(),
+                            'image' => $file->panel()->image([], $this->field()->layout),
                         ];
-                    }
-                    else {
+                    } else {
                         throw new Exception("Clip: Could not find image parent.");
                     }
                 }
@@ -181,8 +182,7 @@ return array_replace_recursive($base, [
                     'id' => $item['id'],
                     'clip' => $item['clip']
                 ];
-            }
-            else {
+            } else {
                 $result[] = [
                     'id' => $item['id']
                 ];
