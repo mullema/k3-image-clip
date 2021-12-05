@@ -114,7 +114,7 @@ export default {
         try {
           this.cropprFacade = new Croppr({
             el: el,
-            original_dimensions: this.image.dimensions,
+            originalDimensions: this.image.dimensions,
             clip: this.clip,
             saved: this.image.clip,
             events: {
