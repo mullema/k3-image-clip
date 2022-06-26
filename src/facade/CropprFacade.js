@@ -56,6 +56,7 @@ export default class {
           this.factor_w = this.original_dimensions.width / event.target.clientWidth
           this.factor_h = this.original_dimensions.height / event.target.clientHeight
           this.setStartPosition()
+          this.setSelectorBoundaries()
         }, false)
       },
       ...this.events
@@ -99,52 +100,45 @@ export default class {
    * Moves the crop selector to a start position
    */
   setStartPosition () {
-    let reference = {
-      width: 10,
-      height: 10
-    }
-
-    if (this.max_width && this.max_height) {
-      this.cropInstance.options.maxSize = reference = {
-        width: this.max_width / this.factor_w,
-        height: this.max_height / this.factor_h
-      }
-    }
-
-    if (this.min_width && this.min_height) {
-      this.cropInstance.options.minSize = reference = {
-        width: this.min_width / this.factor_w,
-        height: this.min_height / this.factor_h
-      }
-    }
-
-    if (!this.saved) {
-      const size = aspectRatioFit({
-        srcWidth: reference.width,
-        srcHeight: reference.height,
-        maxWidth: this.original_dimensions.width,
-        maxHeight: this.original_dimensions.height
-      })
-
-      reference = {
-        width: size.width / this.factor_w,
-        height: size.height / this.factor_h
-      }
-
-      // set default values
-      this.cropInstance.resizeTo(reference.width, reference.height)
-      this.cropInstance.moveTo(0, 0)
-    } else {
+    let reference = {}
+    if (this.saved) {
       // set to position of saved cropped image
-      const calculated = {
+      reference = {
         width: Math.round(this.saved.width / this.factor_w),
         height: Math.round(this.saved.height / this.factor_h),
         left: Math.round(this.saved.left / this.factor_w),
         top: Math.round(this.saved.top / this.factor_h)
       }
+    } else {
+      reference = {
+        width: (this.max_width ? this.max_width : this.original_dimensions.width) / this.factor_w,
+        height: (this.max_height ? this.max_height : this.original_dimensions.height) / this.factor_h,
+        left: 0,
+        top: 0
+      }
+    }
 
-      this.cropInstance.resizeTo(calculated.width, calculated.height)
-      this.cropInstance.moveTo(calculated.left, calculated.top)
+    // set size and position
+    this.cropInstance.resizeTo(reference.width, reference.height)
+    this.cropInstance.moveTo(reference.left, reference.top)
+  }
+
+  /**
+   * set size of crop selector to max/min values according to current image size
+   * current image size is only known after initialisation
+   */
+  setSelectorBoundaries () {
+    if (this.max_width && this.max_height) {
+      this.cropInstance.options.maxSize = {
+        width: this.max_width / this.factor_w,
+        height: this.max_height / this.factor_h
+      }
+    }
+    if (this.min_width && this.min_height) {
+      this.cropInstance.options.minSize = {
+        width: this.min_width / this.factor_w,
+        height: this.min_height / this.factor_h
+      }
     }
   }
 

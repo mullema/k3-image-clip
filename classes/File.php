@@ -8,15 +8,14 @@ class File extends Cms\File {
 
     /**
      * Clip Information from Field
-     * @var array
      */
-    private $clip;
+    private array $clip;
 
-    public function setClip($value) {
+    public function setClip(array $value): void {
         $this->clip = $value;
     }
 
-    public function getClip() {
+    public function getClip(): ?array {
         return $this->clip;
     }
 
