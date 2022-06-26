@@ -2,7 +2,7 @@
 
 namespace mullema;
 
-use Kirby\Cms;
+use Kirby\Filesystem;
 use Kirby\Toolkit\Str;
 
 /**
@@ -26,7 +26,7 @@ use Kirby\Toolkit\Str;
  * echo $filename->toString();
  * // result: some-file-300x200-q80-clip150x150-10x10.jpg
  */
-class Filename extends Cms\Filename {
+class Filename extends Filesystem\Filename {
 
     /**
      * Converts all processed attributes
