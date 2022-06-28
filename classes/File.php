@@ -9,9 +9,9 @@ class File extends Cms\File {
     /**
      * Clip Information from Field
      */
-    private array $clip;
+    private ?array $clip;
 
-    public function setClip(array $value): void {
+    public function setClip(?array $value): void {
         $this->clip = $value;
     }
 
