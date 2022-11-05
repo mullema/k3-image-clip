@@ -7,7 +7,7 @@ use claviska\SimpleImage;
 
 class GdLib extends Darkroom\GdLib
 {
-    protected function resize(SimpleImage $image, array $options)
+    protected function resize(SimpleImage $image, array $options): SimpleImage
     {
         // clip
         if (isset($options['clip'])) {
